@@ -1,0 +1,58 @@
+# Default values for the chart
+
+# -- Global image pull policy
+imagePullPolicy: IfNotPresent
+# -- Correctly formatted list for imagePullSecrets
+imagePullSecrets:
+  - name: application-collection
+# -- Application settings
+ollama:
+  image:
+    repository: dp.apps.rancher.io/containers/ollama
+    tag: "0.6.8"
+  service:
+    port: 11434
+    type: ClusterIP
+  # -- Hardware Configuration for Ollama
+  hardware:
+    type: "nvidia" # Options: "nvidia", "apple"
+  gpu:
+    enabled: false
+  # -- Resource allocation for the main Ollama container
+  resources:
+    requests:
+      cpu: "500"
+      memory: "2Gi"
+    limits:
+      cpu: "4"
+      memory: "16Gi"
+  persistence:
+    enabled: false
+    size: 10Gi
+    storageClassName: "" # Use default if empty, or specify a storage class
+openWebui:
+  image:
+    repository: dp.apps.rancher.io/containers/open-webui
+    tag: "0.6.9"
+  service:
+    port: 8080
+    type: NodePort
+llmChat:
+  image:
+    repository: ghcr.io/suse-technical-marketing/suse-ai-demo-suse
+    tag: "07d4d6f"
+  service:
+    port: 7860
+    type: NodePort
+  devMode:
+    enabled: false
+    image:
+      repository: ghcr.io/suse-technical-marketing/suse-ai-demo-suse-dev # Assuming a SUSE-specific dev image
+      tag: "latest-dev"
+    persistence:
+      enabled: false
+      size: 1Gi
+      storageClassName: ""
+    sshPort: 22
+    gitRepo: "https://github.com/suse-technical-marketing/suse-ai-demo.git"
+    gitBranch: "main"

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama-chat-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama-chat-app
+  template:
+    metadata:
+      labels:
+        app: ollama-chat-app
+    spec:
+      containers:
+        - name: chat-app
+          image: "{{ .Values.llmChat.image.repository }}:{{ .Values.llmChat.image.tag }}"
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.llmChat.service.port }}
+          env:
+            - name: OLLAMA_BASE_URL
+              value: "http://ollama-service:11434"
+            - name: OPEN_WEBUI_BASE_URL
+              value: "http://open-webui-service:8080"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config.json
+              subPath: config.json
+            - name: app-code-volume
+              mountPath: /app/app.py
+              subPath: app.py
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.llmChat.service.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      # The 'volumes' block is now indented correctly under spec
+      volumes:
+        - name: config-volume
+          configMap:
+            name: chat-app-config
+        - name: app-code-volume
+          emptyDir: {}
