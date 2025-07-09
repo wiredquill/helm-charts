@@ -11,4 +11,15 @@ entries:
     urls:
     - genai-observability-demo-0.1.2.tgz
     version: 0.1.2
-generated: "2025-07-09T15:46:07.403709945Z"
+  llm-comm-suse:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2025-07-09T18:39:02.987293849Z"
+    description: A Helm chart for deploying the SUSE LLM communication stack.
+    digest: 83fe7a0468bcc1c567e57b3c92a68c623baa8a3a9311dc2dc2409126ee6f1d13
+    name: llm-comm-suse
+    type: application
+    urls:
+    - llm-comm-suse-0.1.28.tgz
+    version: 0.1.28
+generated: "2025-07-09T18:39:02.987299079Z"
