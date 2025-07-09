@@ -38,7 +38,7 @@ spec:
       - name: ollama-pull-model
         image: "{{ .Values.ollama.image.repository }}:{{ .Values.ollama.image.tag }}"
         imagePullPolicy: {{ .Values.imagePullPolicy }}
-        command: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull {{ .Values.ollama.model }}"]
+        command: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull bge-large:latest && ollama pull {{ .Values.ollama.model }}"]
         volumeMounts:
         - name: ollama-models
           mountPath: /root/.ollama

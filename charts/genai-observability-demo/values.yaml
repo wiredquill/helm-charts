@@ -10,7 +10,7 @@ schedule: '*/5 * * * *'
 
 ollama:
   enabled: true
-  model: "tinyllama:latest" # Default model to pull
+  model: "llama3.2:latest" # Default model to pull
   image:
     repository: dp.apps.rancher.io/containers/ollama
     tag: "0.6.8"
