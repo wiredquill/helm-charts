@@ -14,7 +14,6 @@ questions:
   required: true
   default: "ollama-service:11434"
   group: General
-  show_if: "ollama.enabled=false"
 
 
 - variable: collectGpuStats
