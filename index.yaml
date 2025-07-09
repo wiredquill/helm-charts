@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  genai-observability-demo:
+  - apiVersion: v2
+    appVersion: 0.0.6
+    created: "2025-07-09T15:46:07.403704615Z"
+    description: A Helm chart for Kubernetes
+    digest: 932f54501535a5a643726efaf657421d70384ffb0f8b3c147066454bd8184f2d
+    name: genai-observability-demo
+    type: application
+    urls:
+    - genai-observability-demo-0.1.2.tgz
+    version: 0.1.2
+generated: "2025-07-09T15:46:07.403709945Z"
