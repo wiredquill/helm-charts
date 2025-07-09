@@ -4,7 +4,17 @@ questions:
   type: string
   description: "Open Telemetry Endpoint"
   required: true
+  default: "http//opentelemetry-collector.suse-observability.svc.cluster.local:4318"
   group: General
+
+- variable: ollamaUrl
+  label: "Ollama URL"
+  type: string
+  description: "The URL for the Ollama service."
+  required: true
+  default: "ollama-service:11434"
+  group: General
+  show_if: "ollama.enabled=false"
 
 
 - variable: collectGpuStats
