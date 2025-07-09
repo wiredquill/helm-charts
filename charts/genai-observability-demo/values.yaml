@@ -3,11 +3,37 @@
 # Declare variables to be passed into your templates.
 
 # Endpoints
-ollamaEndpoint: ''
 otlpEndpoint: ''
 collectGpuStats: 'false'
 
 schedule: '*/5 * * * *'
+
+ollama:
+  enabled: true
+  model: "tinyllama:latest" # Default model to pull
+  image:
+    repository: dp.apps.rancher.io/containers/ollama
+    tag: "0.6.8"
+  service:
+    port: 11434
+    type: ClusterIP
+  # -- Hardware Configuration for Ollama
+  hardware:
+    type: "nvidia" # Options: "nvidia", "apple"
+  gpu:
+    enabled: false
+  # -- Resource allocation for the main Ollama container
+  resources:
+    requests:
+      cpu: "500"
+      memory: "2Gi"
+    limits:
+      cpu: "4"
+      memory: "16Gi"
+  persistence:
+    enabled: false
+    size: 10Gi
+    storageClassName: "" # Use default if empty, or specify a storage class
 
     
 # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
