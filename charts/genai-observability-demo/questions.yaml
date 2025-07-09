@@ -7,8 +7,8 @@ questions:
   default: "http://opentelemetry-collector.suse-observability.svc.cluster.local:4318"
   group: General
 
-- variable: ollamaUrl
-  label: "Ollama URL"
+- variable: ollamaEndpoint
+  label: "Ollama Endpoint"
   type: string
   description: "The URL for the Ollama service - Include http:// and port."
   required: true
