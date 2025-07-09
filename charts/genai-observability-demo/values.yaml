@@ -11,6 +11,7 @@ schedule: '*/5 * * * *'
 ollama:
   enabled: true
   model: "llama3.2:latest" # Default model to pull
+  ollamaEndpoint: "http://ollama-service:11434"
   image:
     repository: dp.apps.rancher.io/containers/ollama
     tag: "0.6.8"
