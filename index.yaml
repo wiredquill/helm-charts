@@ -3,6 +3,16 @@ entries:
   genai-observability-demo:
   - apiVersion: v2
     appVersion: 0.0.6
+    created: "2025-07-16T23:54:53.281359868Z"
+    description: A Helm chart for Kubernetes
+    digest: 3dbbaf878031917466db70d96b65f32913dccf323f9d06e6cd6f34d5860cc17d
+    name: genai-observability-demo
+    type: application
+    urls:
+    - genai-observability-demo-0.1.5.tgz
+    version: 0.1.5
+  - apiVersion: v2
+    appVersion: 0.0.6
     created: "2025-07-09T22:19:15.529710988Z"
     description: A Helm chart for Kubernetes
     digest: d40b776444cff258c2c89caee5746f24434f14f932f23a1bf7466d4d5c2361e7
@@ -42,4 +52,4 @@ entries:
     urls:
     - llm-comm-suse-0.1.28.tgz
     version: 0.1.28
-generated: "2025-07-09T22:19:15.529723521Z"
+generated: "2025-07-16T23:54:53.281375528Z"
