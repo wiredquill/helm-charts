@@ -2,6 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Global image pull policy and secrets
+imagePullSecrets:
+  - name: application-collection
+
 # Endpoints
 otlpEndpoint: ''
 collectGpuStats: 'false'
