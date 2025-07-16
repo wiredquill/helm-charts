@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+  workflow_run:
+    workflows: ["Auto Version Bump Charts"]
+    types:
+      - completed
 
 jobs:
   release:
