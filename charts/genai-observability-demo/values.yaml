@@ -7,7 +7,7 @@ imagePullSecrets:
   - name: application-collection
 
 # Endpoints
-otlpEndpoint: ''
+otlpEndpoint: 'http://opentelemetry-collector.suse-observability.svc.cluster.local:4318'
 collectGpuStats: 'false'
 
 schedule: '*/5 * * * *'
