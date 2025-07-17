@@ -8,6 +8,7 @@ imagePullSecrets:
 
 # Endpoints
 otlpEndpoint: 'http://opentelemetry-collector.suse-observability.svc.cluster.local:4318'
+ollamaEndpoint: 'http://ollama-service:11434'
 collectGpuStats: 'false'
 
 schedule: '*/5 * * * *'
