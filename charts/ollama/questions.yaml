@@ -3,23 +3,48 @@ questions:
 - variable: replicaCount
   label: "Replica Count"
   type: int
-  description: "Number of replicas for the Ollama deployment"
+  description: "Number of Ollama pods for load balancing. Usually 1 for GPU workloads due to resource constraints, increase for CPU-only deployments."
   required: true
   default: 1
+  group: General
+
+- variable: image.repository
+  label: "Ollama Image Repository"
+  type: string
+  description: "Container registry for Ollama images. Use official 'ollama/ollama' or your private registry for custom builds."
+  default: "ollama/ollama"
   group: General
 
 - variable: image.tag
   label: "Ollama Image Tag"
   type: string
-  description: "The container image tag for Ollama"
+  description: "Ollama version to deploy. Use stable versions like '0.3.0' for production. Check Ollama releases for GPU compatibility."
   required: true
   default: "0.3.0"
+  group: General
+
+- variable: image.pullPolicy
+  label: "Image Pull Policy"
+  type: enum
+  description: "Policy for pulling container images"
+  default: "IfNotPresent"
+  group: General
+  options:
+    - "IfNotPresent"
+    - "Always"
+    - "Never"
+
+- variable: imagePullSecrets
+  label: "Image Pull Secrets"
+  type: string
+  description: "Comma-separated list of Kubernetes secrets for pulling private container images. Use 'application-collection' for default registry access."
+  default: "application-collection"
   group: General
 
 - variable: model
   label: "Default Model"
   type: string
-  description: "Default Ollama model to pull and serve"
+  description: "LLM model to download and serve (e.g., 'llama3.2:latest', 'mistral:7b', 'codellama:13b'). Larger models need more RAM/VRAM."
   required: true
   default: "llama3.2:latest"
   group: General
@@ -27,11 +52,11 @@ questions:
 # Service Configuration
 - variable: service.type
   label: "Service Type"
-  description: "Method to expose the Ollama service"
+  description: "How to expose Ollama API: 'ClusterIP' (internal only), 'NodePort' (external via node IP:port), 'LoadBalancer' (cloud LB)."
   type: enum
   required: true
   default: "ClusterIP"
-  group: "Network"
+  group: General
   options:
     - "ClusterIP"
     - "NodePort"
@@ -40,19 +65,19 @@ questions:
 - variable: service.port
   label: "Service Port"
   type: int
-  description: "Port to expose the Ollama service on"
+  description: "TCP port for Ollama REST API. Default 11434 is the standard Ollama server port for client connections."
   required: true
   default: 11434
-  group: "Network"
+  group: General
 
 # Hardware Configuration
 - variable: hardware.type
   label: "Target Hardware"
-  description: "Select the target hardware architecture for deployment"
+  description: "Hardware platform for optimal performance: NVIDIA GPU for fastest inference, Apple Silicon for M1/M2 Macs, CPU for broad compatibility."
   type: enum
   required: true
   default: "nvidia"
-  group: "Hardware"
+  group: General
   options:
     - label: "NVIDIA GPU (amd64)"
       value: "nvidia"
@@ -63,93 +88,90 @@ questions:
 
 - variable: gpu.enabled
   label: "Enable GPU Acceleration"
-  description: "Enable NVIDIA GPU acceleration (requires GPU nodes)"
+  description: "Use NVIDIA GPUs for faster model inference. Requires GPU-enabled Kubernetes nodes with NVIDIA device plugin installed."
   type: boolean
   default: false
   show_if: "hardware.type=nvidia"
-  group: "Hardware"
+  group: General
 
 # Storage Configuration
 - variable: persistence.enabled
   label: "Enable Model Persistence"
-  description: "Enable persistent storage for Ollama models"
+  description: "Store downloaded models persistently to avoid re-downloading on pod restart. Essential for production to reduce startup time."
   type: boolean
   default: true
-  group: "Storage"
+  group: General
 
 - variable: persistence.size
   label: "Storage Size"
-  description: "Size of the persistent volume claim for models"
+  description: "Storage for model files. LLMs are large: 7B models ~4GB, 13B ~8GB, 70B ~40GB. Plan for multiple models plus growth."
   type: string
   default: "50Gi"
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 - variable: persistence.storageClassName
   label: "Storage Class"
-  description: "Storage class name for the PVC. Leave empty for default"
+  description: "Storage performance class. Fast SSD recommended for large models to reduce loading time. Leave empty for cluster default."
   type: string
   default: ""
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 # Resource Configuration
 - variable: resources.requests.cpu
   label: "CPU Request"
   type: string
-  description: "CPU resources requested for Ollama"
+  description: "Guaranteed CPU cores for model inference. 2+ cores recommended for decent performance, more for larger models or CPU-only inference."
   default: "2"
-  group: "Resources"
+  group: General
 
 - variable: resources.requests.memory
   label: "Memory Request"
   type: string
-  description: "Memory resources requested for Ollama"
+  description: "Guaranteed RAM for model loading. Minimum 4Gi for 7B models, 8Gi+ for 13B, 32Gi+ for 70B models. GPU reduces RAM needs."
   default: "4Gi"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.cpu
   label: "CPU Limit"
   type: string
-  description: "CPU resource limit for Ollama"
+  description: "Maximum CPU cores for model inference. Higher limits improve performance for CPU-based inference and concurrent requests."
   default: "8"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.memory
   label: "Memory Limit"
   type: string
-  description: "Memory resource limit for Ollama"
+  description: "Maximum RAM before restart. Set higher than model size to prevent OOM kills. Include buffer for OS and inference overhead."
   default: "16Gi"
-  group: "Resources"
+  group: General
 
 # Advanced Configuration
-- variable: showAdvanced
-  label: "Show Advanced Options"
-  description: "Show advanced configuration options"
-  type: boolean
-  default: false
-  group: "Advanced"
-
 - variable: additionalModels
   label: "Additional Models"
   type: string
-  description: "Comma-separated list of additional models to pull"
+  description: "Extra models to download at startup (comma-separated). Example: 'codellama:7b,mistral:latest'. Increases storage and startup time."
   default: ""
-  show_if: "showAdvanced=true"
   group: "Advanced"
 
 - variable: env.OLLAMA_KEEP_ALIVE
   label: "Keep Alive Duration"
   type: string
-  description: "How long to keep models in memory (e.g., '5m', '1h')"
+  description: "How long to keep models loaded in memory after last request (e.g., '5m', '1h', '-1' for indefinite). Longer = faster responses, more memory."
   default: "5m"
-  show_if: "showAdvanced=true"
   group: "Advanced"
 
 - variable: env.OLLAMA_NUM_PARALLEL
   label: "Parallel Requests"
   type: int
-  description: "Number of parallel requests to process"
+  description: "Maximum concurrent inference requests. Higher values increase throughput but require more memory. Start with 1, increase with available resources."
   default: 1
-  show_if: "showAdvanced=true"
+  group: "Advanced"
+
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options"
+  type: boolean
+  default: false
   group: "Advanced"

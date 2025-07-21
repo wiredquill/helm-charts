@@ -3,7 +3,7 @@ questions:
 - variable: replicaCount
   label: "Replica Count"
   type: int
-  description: "Number of replicas for the Milvus deployment"
+  description: "Number of Milvus pods to run for high availability. Increase for production workloads requiring fault tolerance."
   required: true
   default: 1
   group: General
@@ -11,19 +11,44 @@ questions:
 - variable: image.tag
   label: "Milvus Image Tag"
   type: string
-  description: "The container image tag for Milvus"
+  description: "Specific version of Milvus to deploy. Use stable versions like 'v2.4.0' for production environments."
   required: true
   default: "v2.4.0"
+  group: General
+
+- variable: image.repository
+  label: "Milvus Image Repository"
+  type: string
+  description: "Container registry and repository path for Milvus images. Use official 'milvusdb/milvus' or your private registry."
+  default: "milvusdb/milvus"
+  group: General
+
+- variable: image.pullPolicy
+  label: "Image Pull Policy"
+  type: enum
+  description: "When to pull container images. 'IfNotPresent' (recommended) pulls only if image not cached locally, 'Always' pulls on every restart, 'Never' uses only cached images."
+  default: "IfNotPresent"
+  group: General
+  options:
+    - "IfNotPresent"
+    - "Always"
+    - "Never"
+
+- variable: imagePullSecrets
+  label: "Image Pull Secrets"
+  type: string
+  description: "Comma-separated list of Kubernetes secrets for pulling private container images. Use 'application-collection' for default registry access."
+  default: "application-collection"
   group: General
 
 # Service Configuration
 - variable: service.type
   label: "Service Type"
-  description: "Method to expose the Milvus service"
+  description: "How to expose Milvus service: 'ClusterIP' (internal cluster access only), 'NodePort' (external access via node IP:port), 'LoadBalancer' (cloud load balancer with external IP)."
   type: enum
   required: true
   default: "ClusterIP"
-  group: "Network"
+  group: General
   options:
     - "ClusterIP"
     - "NodePort"
@@ -32,63 +57,85 @@ questions:
 - variable: service.port
   label: "Service Port"
   type: int
-  description: "Port to expose the Milvus service on"
+  description: "TCP port for Milvus gRPC API. Default 19530 is the standard Milvus port for client connections."
   required: true
   default: 19530
-  group: "Network"
+  group: General
 
 # Storage Configuration
 - variable: persistence.enabled
   label: "Enable Persistence"
-  description: "Enable persistent storage for Milvus data"
+  description: "Store vector data persistently across pod restarts. Essential for production to prevent data loss."
   type: boolean
   default: true
-  group: "Storage"
+  group: General
 
 - variable: persistence.size
   label: "Storage Size"
-  description: "Size of the persistent volume claim"
+  description: "Amount of persistent storage for vector data and metadata. Size based on your dataset - start with 50Gi and scale as needed."
   type: string
   default: "50Gi"
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 - variable: persistence.storageClassName
   label: "Storage Class"
-  description: "Storage class name for the PVC. Leave empty for default"
+  description: "Kubernetes storage class for performance characteristics. Leave empty to use cluster default, or specify 'fast-ssd' for high-performance workloads."
   type: string
   default: ""
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 # Resource Configuration
 - variable: resources.requests.cpu
   label: "CPU Request"
   type: string
-  description: "CPU resources requested for Milvus"
+  description: "Guaranteed CPU cores for Milvus. Vector operations are CPU-intensive - start with 1 core, increase for large datasets or high query load."
   default: "1"
-  group: "Resources"
+  group: General
 
 - variable: resources.requests.memory
   label: "Memory Request"
   type: string
-  description: "Memory resources requested for Milvus"
+  description: "Guaranteed RAM for vector indexes and query processing. 4Gi minimum recommended - increase based on dataset size and query complexity."
   default: "4Gi"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.cpu
   label: "CPU Limit"
   type: string
-  description: "CPU resource limit for Milvus"
+  description: "Maximum CPU cores Milvus can use. Prevents resource starvation of other workloads - set 2-4x the request value."
   default: "4"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.memory
   label: "Memory Limit"
   type: string
-  description: "Memory resource limit for Milvus"
+  description: "Maximum RAM Milvus can use before being killed. Set 2-4x request value to handle memory spikes during indexing."
   default: "16Gi"
-  group: "Resources"
+  group: General
+
+# Component Configuration
+- variable: etcd.enabled
+  label: "Enable Embedded etcd"
+  description: "Deploy etcd for storing Milvus metadata (collection schemas, indexes). Enable for simple deployments, disable to use external etcd cluster."
+  type: boolean
+  default: true
+  group: General
+
+- variable: minio.enabled
+  label: "Enable Embedded MinIO"
+  description: "Deploy MinIO for storing vector data files and logs. Enable for simple deployments, disable to use external S3-compatible storage."
+  type: boolean
+  default: true
+  group: General
+
+- variable: pulsar.enabled
+  label: "Enable Embedded Pulsar"
+  description: "Deploy Pulsar for handling real-time data streams and Write-Ahead Logs. Enable for simple deployments, disable for external Pulsar/Kafka."
+  type: boolean
+  default: true
+  group: General
 
 # Advanced Configuration
 - variable: showAdvanced
@@ -96,28 +143,4 @@ questions:
   description: "Show advanced configuration options"
   type: boolean
   default: false
-  group: "Advanced"
-
-- variable: etcd.enabled
-  label: "Enable Embedded etcd"
-  description: "Use embedded etcd for metadata storage"
-  type: boolean
-  default: true
-  show_if: "showAdvanced=true"
-  group: "Advanced"
-
-- variable: minio.enabled
-  label: "Enable Embedded MinIO"
-  description: "Use embedded MinIO for object storage"
-  type: boolean
-  default: true
-  show_if: "showAdvanced=true"
-  group: "Advanced"
-
-- variable: pulsar.enabled
-  label: "Enable Embedded Pulsar"
-  description: "Use embedded Pulsar for message queue"
-  type: boolean
-  default: true
-  show_if: "showAdvanced=true"
   group: "Advanced"

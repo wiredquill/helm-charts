@@ -5,6 +5,8 @@ image:
   tag: "1.0.0"
   pullPolicy: IfNotPresent
 
+imagePullSecrets: "application-collection"
+
 service:
   type: ClusterIP
   port: 8080
@@ -25,6 +27,73 @@ resources:
   limits:
     cpu: "2"
     memory: "4Gi"
+
+# Milvus Configuration
+milvus:
+  enabled: false
+  version: "v2.4.0"
+  replicas: 1
+  persistence:
+    size: "50Gi"
+  resources:
+    cpu: "1"
+    memory: "4Gi"
+
+# MLflow Configuration
+mlflow:
+  enabled: false
+  version: "2.10.0"
+  replicas: 1
+  persistence:
+    size: "20Gi"
+  database:
+    type: "sqlite"
+  resources:
+    cpu: "500m"
+    memory: "1Gi"
+
+# Ollama Configuration
+ollama:
+  enabled: false
+  version: "0.3.0"
+  model: "llama3.2:latest"
+  replicas: 1
+  gpu:
+    enabled: false
+  persistence:
+    size: "50Gi"
+  resources:
+    cpu: "2"
+    memory: "4Gi"
+
+# PyTorch Configuration
+pytorch:
+  enabled: false
+  version: "2.2.0-cuda12.1-cudnn8-devel"
+  workload:
+    type: "jupyter"
+  replicas: 1
+  gpu:
+    enabled: false
+  persistence:
+    size: "20Gi"
+  resources:
+    cpu: "2"
+    memory: "8Gi"
+
+# SUSE AI Observability Extension Configuration
+observability:
+  enabled: false
+  version: "1.0.0"
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true
+  persistence:
+    size: "20Gi"
+  resources:
+    cpu: "500m"
+    memory: "2Gi"
 
 # Advanced configuration
 showAdvanced: false

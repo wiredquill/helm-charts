@@ -5,6 +5,8 @@ image:
   tag: "3.11-slim"
   pullPolicy: IfNotPresent
 
+imagePullSecrets: "application-collection"
+
 service:
   type: ClusterIP
   port: 5000

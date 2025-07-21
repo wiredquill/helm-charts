@@ -8,12 +8,37 @@ questions:
   default: 1
   group: General
 
+- variable: image.repository
+  label: "PyTorch Image Repository"
+  type: string
+  description: "The container image repository for PyTorch"
+  default: "pytorch/pytorch"
+  group: General
+
 - variable: image.tag
   label: "PyTorch Image Tag"
   type: string
   description: "The container image tag for PyTorch"
   required: true
   default: "2.2.0-cuda12.1-cudnn8-devel"
+  group: General
+
+- variable: image.pullPolicy
+  label: "Image Pull Policy"
+  type: enum
+  description: "Policy for pulling container images"
+  default: "IfNotPresent"
+  group: General
+  options:
+    - "IfNotPresent"
+    - "Always"
+    - "Never"
+
+- variable: imagePullSecrets
+  label: "Image Pull Secrets"
+  type: string
+  description: "Comma-separated list of Kubernetes secrets for pulling private container images. Use 'application-collection' for default registry access."
+  default: "application-collection"
   group: General
 
 - variable: workload.type
@@ -35,7 +60,7 @@ questions:
   type: enum
   required: true
   default: "ClusterIP"
-  group: "Network"
+  group: General
   options:
     - "ClusterIP"
     - "NodePort"
@@ -48,7 +73,7 @@ questions:
   required: true
   default: 8888
   show_if: "workload.type=jupyter"
-  group: "Network"
+  group: General
 
 # Hardware Configuration
 - variable: gpu.enabled
@@ -56,7 +81,7 @@ questions:
   description: "Enable NVIDIA GPU support for PyTorch"
   type: boolean
   default: false
-  group: "Hardware"
+  group: General
 
 - variable: gpu.count
   label: "GPU Count"
@@ -64,7 +89,7 @@ questions:
   description: "Number of GPUs to request"
   default: 1
   show_if: "gpu.enabled=true"
-  group: "Hardware"
+  group: General
 
 # Storage Configuration
 - variable: persistence.enabled
@@ -72,7 +97,7 @@ questions:
   description: "Enable persistent storage for notebooks and data"
   type: boolean
   default: true
-  group: "Storage"
+  group: General
 
 - variable: persistence.size
   label: "Storage Size"
@@ -80,7 +105,7 @@ questions:
   type: string
   default: "20Gi"
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 - variable: persistence.storageClassName
   label: "Storage Class"
@@ -88,7 +113,7 @@ questions:
   type: string
   default: ""
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 # Resource Configuration
 - variable: resources.requests.cpu
@@ -96,43 +121,36 @@ questions:
   type: string
   description: "CPU resources requested for PyTorch"
   default: "2"
-  group: "Resources"
+  group: General
 
 - variable: resources.requests.memory
   label: "Memory Request"
   type: string
   description: "Memory resources requested for PyTorch"
   default: "8Gi"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.cpu
   label: "CPU Limit"
   type: string
   description: "CPU resource limit for PyTorch"
   default: "8"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.memory
   label: "Memory Limit"
   type: string
   description: "Memory resource limit for PyTorch"
   default: "32Gi"
-  group: "Resources"
+  group: General
 
 # Advanced Configuration
-- variable: showAdvanced
-  label: "Show Advanced Options"
-  description: "Show advanced configuration options"
-  type: boolean
-  default: false
-  group: "Advanced"
-
 - variable: jupyter.token
   label: "Jupyter Token"
   type: string
   description: "Access token for Jupyter notebook (leave empty for auto-generated)"
   default: ""
-  show_if: "showAdvanced=true && workload.type=jupyter"
+  show_if: "workload.type=jupyter"
   group: "Advanced"
 
 - variable: distributedTraining.enabled
@@ -140,7 +158,7 @@ questions:
   description: "Enable PyTorch distributed training capabilities"
   type: boolean
   default: false
-  show_if: "showAdvanced=true && workload.type=training"
+  show_if: "workload.type=training"
   group: "Advanced"
 
 - variable: distributedTraining.backend
@@ -148,9 +166,16 @@ questions:
   description: "Backend for distributed training"
   type: enum
   default: "nccl"
-  show_if: "showAdvanced=true && distributedTraining.enabled=true"
+  show_if: "distributedTraining.enabled=true"
   group: "Advanced"
   options:
     - "nccl"
     - "gloo"
     - "mpi"
+
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options"
+  type: boolean
+  default: false
+  group: "Advanced"

@@ -3,27 +3,52 @@ questions:
 - variable: replicaCount
   label: "Replica Count"
   type: int
-  description: "Number of replicas for the MLflow deployment"
+  description: "Number of MLflow tracking server pods for high availability. Use 1 for development, 2+ for production."
   required: true
   default: 1
+  group: General
+
+- variable: image.repository
+  label: "MLflow Image Repository"
+  type: string
+  description: "Base container image for MLflow. Using 'python' base image where MLflow will be installed via pip during startup."
+  default: "python"
   group: General
 
 - variable: image.tag
   label: "MLflow Image Tag"
   type: string
-  description: "The container image tag for MLflow"
+  description: "Python version tag for the base image. '3.11-slim' provides Python 3.11 in a lightweight container for MLflow installation."
   required: true
-  default: "2.10.0"
+  default: "3.11-slim"
+  group: General
+
+- variable: image.pullPolicy
+  label: "Image Pull Policy"
+  type: enum
+  description: "Policy for pulling container images"
+  default: "IfNotPresent"
+  group: General
+  options:
+    - "IfNotPresent"
+    - "Always"
+    - "Never"
+
+- variable: imagePullSecrets
+  label: "Image Pull Secrets"
+  type: string
+  description: "Comma-separated list of Kubernetes secrets for pulling private container images. Use 'application-collection' for default registry access."
+  default: "application-collection"
   group: General
 
 # Service Configuration
 - variable: service.type
   label: "Service Type"
-  description: "Method to expose the MLflow service"
+  description: "How to expose MLflow UI and API: 'ClusterIP' (internal only), 'NodePort' (external via node IP:port), 'LoadBalancer' (cloud LB with external IP)."
   type: enum
   required: true
   default: "ClusterIP"
-  group: "Network"
+  group: General
   options:
     - "ClusterIP"
     - "NodePort"
@@ -32,26 +57,26 @@ questions:
 - variable: service.port
   label: "Service Port"
   type: int
-  description: "Port to expose the MLflow service on"
+  description: "TCP port for MLflow web UI and REST API. Default 5000 is the standard MLflow server port."
   required: true
   default: 5000
-  group: "Network"
+  group: General
 
 # Storage Configuration
 - variable: persistence.enabled
   label: "Enable Persistence"
-  description: "Enable persistent storage for MLflow artifacts"
+  description: "Store ML artifacts (models, plots, datasets) persistently. Essential for production to preserve trained models and experiment data."
   type: boolean
   default: true
-  group: "Storage"
+  group: General
 
 - variable: persistence.size
   label: "Storage Size"
-  description: "Size of the persistent volume claim for artifacts"
+  description: "Storage for ML artifacts and models. Start with 20Gi, increase based on model sizes and number of experiments."
   type: string
   default: "20Gi"
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 - variable: persistence.storageClassName
   label: "Storage Class"
@@ -59,15 +84,15 @@ questions:
   type: string
   default: ""
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 # Database Configuration
 - variable: database.type
   label: "Database Type"
-  description: "Backend database for MLflow tracking"
+  description: "Backend for experiment tracking metadata. 'sqlite' for simple setups, 'postgresql'/'mysql' for production with concurrent users."
   type: enum
   default: "sqlite"
-  group: "Database"
+  group: General
   options:
     - "sqlite"
     - "postgresql"
@@ -76,62 +101,54 @@ questions:
 - variable: database.host
   label: "Database Host"
   type: string
-  description: "Database host (for external database)"
+  description: "Hostname or IP address of external database server. Required when using PostgreSQL or MySQL instead of embedded SQLite."
   default: ""
   show_if: "database.type!=sqlite"
-  group: "Database"
+  group: General
 
 - variable: database.port
   label: "Database Port"
   type: int
-  description: "Database port"
+  description: "TCP port for database connection. Standard ports: PostgreSQL=5432, MySQL=3306."
   default: 5432
   show_if: "database.type=postgresql"
-  group: "Database"
+  group: General
 
 # Resource Configuration
 - variable: resources.requests.cpu
   label: "CPU Request"
   type: string
-  description: "CPU resources requested for MLflow"
+  description: "Guaranteed CPU for MLflow server. 500m (0.5 cores) suitable for small teams, increase for high experiment load."
   default: "500m"
-  group: "Resources"
+  group: General
 
 - variable: resources.requests.memory
   label: "Memory Request"
   type: string
-  description: "Memory resources requested for MLflow"
+  description: "Guaranteed RAM for MLflow processes and caching. 1Gi minimum, increase for large experiment datasets."
   default: "1Gi"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.cpu
   label: "CPU Limit"
   type: string
-  description: "CPU resource limit for MLflow"
+  description: "Maximum CPU cores MLflow can use. Prevents resource starvation - set 2-4x the request value."
   default: "2"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.memory
   label: "Memory Limit"
   type: string
-  description: "Memory resource limit for MLflow"
+  description: "Maximum RAM before container restart. Set 2-4x request to handle memory spikes during artifact processing."
   default: "4Gi"
-  group: "Resources"
+  group: General
 
 # Advanced Configuration
-- variable: showAdvanced
-  label: "Show Advanced Options"
-  description: "Show advanced configuration options"
-  type: boolean
-  default: false
-  group: "Advanced"
-
 - variable: artifactStore.type
   label: "Artifact Store Type"
-  description: "Type of artifact store to use"
+  description: "Where to store ML artifacts: 'filesystem' (local/NFS), 's3' (AWS S3), 'azure' (Azure Blob), 'gcs' (Google Cloud Storage)."
   type: enum
   default: "filesystem"
-  show_if: "showAdvanced=true"
   group: "Advanced"
   options:
     - "filesystem"
@@ -141,8 +158,14 @@ questions:
 
 - variable: auth.enabled
   label: "Enable Authentication"
-  description: "Enable MLflow authentication"
+  description: "Require user login to access MLflow UI and API. Enable for production environments with sensitive ML experiments."
   type: boolean
   default: false
-  show_if: "showAdvanced=true"
+  group: "Advanced"
+
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options"
+  type: boolean
+  default: false
   group: "Advanced"

@@ -8,12 +8,37 @@ questions:
   default: 1
   group: General
 
+- variable: image.repository
+  label: "SUSE AI Observability Extension Image Repository"
+  type: string
+  description: "The container image repository for SUSE AI Observability Extension"
+  default: "registry.suse.com/suse/ai-observability-extension"
+  group: General
+
 - variable: image.tag
   label: "SUSE AI Observability Extension Image Tag"
   type: string
   description: "The container image tag for SUSE AI Observability Extension"
   required: true
   default: "1.0.0"
+  group: General
+
+- variable: image.pullPolicy
+  label: "Image Pull Policy"
+  type: enum
+  description: "Policy for pulling container images"
+  default: "IfNotPresent"
+  group: General
+  options:
+    - "IfNotPresent"
+    - "Always"
+    - "Never"
+
+- variable: imagePullSecrets
+  label: "Image Pull Secrets"
+  type: string
+  description: "Comma-separated list of Kubernetes secrets for pulling private container images. Use 'application-collection' for default registry access."
+  default: "application-collection"
   group: General
 
 # Service Configuration
@@ -23,7 +48,7 @@ questions:
   type: enum
   required: true
   default: "ClusterIP"
-  group: "Network"
+  group: General
   options:
     - "ClusterIP"
     - "NodePort"
@@ -35,7 +60,7 @@ questions:
   description: "Port to expose the SUSE AI Observability Extension service on"
   required: true
   default: 3000
-  group: "Network"
+  group: General
 
 # Monitoring Configuration
 - variable: prometheus.enabled
@@ -43,7 +68,7 @@ questions:
   description: "Enable Prometheus metrics collection"
   type: boolean
   default: true
-  group: "Monitoring"
+  group: General
 
 - variable: prometheus.port
   label: "Prometheus Metrics Port"
@@ -51,14 +76,14 @@ questions:
   description: "Port for Prometheus metrics endpoint"
   default: 9090
   show_if: "prometheus.enabled=true"
-  group: "Monitoring"
+  group: General
 
 - variable: grafana.enabled
   label: "Enable Grafana Dashboards"
   description: "Deploy pre-configured Grafana dashboards"
   type: boolean
   default: true
-  group: "Monitoring"
+  group: General
 
 # OTLP Configuration
 - variable: otlp.enabled
@@ -66,7 +91,7 @@ questions:
   description: "Enable OpenTelemetry Protocol data collection"
   type: boolean
   default: true
-  group: "Telemetry"
+  group: General
 
 - variable: otlp.endpoint
   label: "OTLP Endpoint"
@@ -74,7 +99,7 @@ questions:
   description: "OpenTelemetry collector endpoint"
   default: "http://opentelemetry-collector:4318"
   show_if: "otlp.enabled=true"
-  group: "Telemetry"
+  group: General
 
 # Storage Configuration
 - variable: persistence.enabled
@@ -82,7 +107,7 @@ questions:
   description: "Enable persistent storage for metrics and logs"
   type: boolean
   default: true
-  group: "Storage"
+  group: General
 
 - variable: persistence.size
   label: "Storage Size"
@@ -90,7 +115,7 @@ questions:
   type: string
   default: "20Gi"
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 - variable: persistence.storageClassName
   label: "Storage Class"
@@ -98,7 +123,7 @@ questions:
   type: string
   default: ""
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 # Resource Configuration
 - variable: resources.requests.cpu
@@ -106,43 +131,35 @@ questions:
   type: string
   description: "CPU resources requested for SUSE AI Observability Extension"
   default: "500m"
-  group: "Resources"
+  group: General
 
 - variable: resources.requests.memory
   label: "Memory Request"
   type: string
   description: "Memory resources requested for SUSE AI Observability Extension"
   default: "2Gi"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.cpu
   label: "CPU Limit"
   type: string
   description: "CPU resource limit for SUSE AI Observability Extension"
   default: "2"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.memory
   label: "Memory Limit"
   type: string
   description: "Memory resource limit for SUSE AI Observability Extension"
   default: "8Gi"
-  group: "Resources"
+  group: General
 
 # Advanced Configuration
-- variable: showAdvanced
-  label: "Show Advanced Options"
-  description: "Show advanced configuration options"
-  type: boolean
-  default: false
-  group: "Advanced"
-
 - variable: alerting.enabled
   label: "Enable Alerting"
   description: "Enable alerting capabilities"
   type: boolean
   default: false
-  show_if: "showAdvanced=true"
   group: "Advanced"
 
 - variable: logging.level
@@ -150,7 +167,6 @@ questions:
   description: "Logging level for the application"
   type: enum
   default: "info"
-  show_if: "showAdvanced=true"
   group: "Advanced"
   options:
     - "debug"
@@ -163,5 +179,11 @@ questions:
   type: int
   description: "Number of days to retain observability data"
   default: 30
-  show_if: "showAdvanced=true"
+  group: "Advanced"
+
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options"
+  type: boolean
+  default: false
   group: "Advanced"

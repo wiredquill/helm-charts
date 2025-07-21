@@ -8,12 +8,37 @@ questions:
   default: 1
   group: General
 
+- variable: image.repository
+  label: "SUSE AI Deployer Image Repository"
+  type: string
+  description: "The container image repository for SUSE AI Deployer"
+  default: "registry.suse.com/suse/ai-deployer"
+  group: General
+
 - variable: image.tag
   label: "SUSE AI Deployer Image Tag"
   type: string
   description: "The container image tag for SUSE AI Deployer"
   required: true
   default: "1.0.0"
+  group: General
+
+- variable: image.pullPolicy
+  label: "Image Pull Policy"
+  type: enum
+  description: "Policy for pulling container images"
+  default: "IfNotPresent"
+  group: General
+  options:
+    - "IfNotPresent"
+    - "Always"
+    - "Never"
+
+- variable: imagePullSecrets
+  label: "Image Pull Secrets"
+  type: string
+  description: "Comma-separated list of Kubernetes secrets for pulling private container images. Use 'application-collection' for default registry access."
+  default: "application-collection"
   group: General
 
 # Service Configuration
@@ -23,7 +48,7 @@ questions:
   type: enum
   required: true
   default: "ClusterIP"
-  group: "Network"
+  group: General
   options:
     - "ClusterIP"
     - "NodePort"
@@ -35,7 +60,7 @@ questions:
   description: "Port to expose the SUSE AI Deployer service on"
   required: true
   default: 8080
-  group: "Network"
+  group: General
 
 # Configuration
 - variable: config.namespace
@@ -43,14 +68,14 @@ questions:
   type: string
   description: "Default namespace for AI workload deployments"
   default: "default"
-  group: "Configuration"
+  group: General
 
 - variable: config.registry
   label: "Container Registry"
   type: string
   description: "Default container registry for AI workloads"
   default: "registry.suse.com"
-  group: "Configuration"
+  group: General
 
 # Storage Configuration
 - variable: persistence.enabled
@@ -58,7 +83,7 @@ questions:
   description: "Enable persistent storage for deployment configurations"
   type: boolean
   default: true
-  group: "Storage"
+  group: General
 
 - variable: persistence.size
   label: "Storage Size"
@@ -66,7 +91,7 @@ questions:
   type: string
   default: "10Gi"
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 - variable: persistence.storageClassName
   label: "Storage Class"
@@ -74,7 +99,7 @@ questions:
   type: string
   default: ""
   show_if: "persistence.enabled=true"
-  group: "Storage"
+  group: General
 
 # Resource Configuration
 - variable: resources.requests.cpu
@@ -82,43 +107,331 @@ questions:
   type: string
   description: "CPU resources requested for SUSE AI Deployer"
   default: "500m"
-  group: "Resources"
+  group: General
 
 - variable: resources.requests.memory
   label: "Memory Request"
   type: string
   description: "Memory resources requested for SUSE AI Deployer"
   default: "1Gi"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.cpu
   label: "CPU Limit"
   type: string
   description: "CPU resource limit for SUSE AI Deployer"
   default: "2"
-  group: "Resources"
+  group: General
 
 - variable: resources.limits.memory
   label: "Memory Limit"
   type: string
   description: "Memory resource limit for SUSE AI Deployer"
   default: "4Gi"
-  group: "Resources"
+  group: General
 
-# Advanced Configuration
-- variable: showAdvanced
-  label: "Show Advanced Options"
-  description: "Show advanced configuration options"
+# Milvus Configuration
+- variable: milvus.enabled
+  label: "Enable Milvus Deployment"
+  description: "Deploy Milvus vector database through AI Deployer"
   type: boolean
   default: false
-  group: "Advanced"
+  group: "Milvus"
 
+- variable: milvus.version
+  label: "Milvus Version"
+  type: string
+  description: "Version of Milvus to deploy"
+  default: "v2.4.0"
+  show_if: "milvus.enabled=true"
+  group: "Milvus"
+
+- variable: milvus.replicas
+  label: "Milvus Replicas"
+  type: int
+  description: "Number of Milvus replicas"
+  default: 1
+  show_if: "milvus.enabled=true"
+  group: "Milvus"
+
+- variable: milvus.persistence.size
+  label: "Milvus Storage Size"
+  type: string
+  description: "Storage size for Milvus data"
+  default: "50Gi"
+  show_if: "milvus.enabled=true"
+  group: "Milvus"
+
+- variable: milvus.resources.cpu
+  label: "Milvus CPU Request"
+  type: string
+  description: "CPU resources for Milvus"
+  default: "1"
+  show_if: "milvus.enabled=true"
+  group: "Milvus"
+
+- variable: milvus.resources.memory
+  label: "Milvus Memory Request"
+  type: string
+  description: "Memory resources for Milvus"
+  default: "4Gi"
+  show_if: "milvus.enabled=true"
+  group: "Milvus"
+
+# MLflow Configuration
+- variable: mlflow.enabled
+  label: "Enable MLflow Deployment"
+  description: "Deploy MLflow ML lifecycle management through AI Deployer"
+  type: boolean
+  default: false
+  group: "MLflow"
+
+- variable: mlflow.version
+  label: "MLflow Version"
+  type: string
+  description: "Version of MLflow to deploy"
+  default: "2.10.0"
+  show_if: "mlflow.enabled=true"
+  group: "MLflow"
+
+- variable: mlflow.replicas
+  label: "MLflow Replicas"
+  type: int
+  description: "Number of MLflow replicas"
+  default: 1
+  show_if: "mlflow.enabled=true"
+  group: "MLflow"
+
+- variable: mlflow.persistence.size
+  label: "MLflow Storage Size"
+  type: string
+  description: "Storage size for MLflow artifacts"
+  default: "20Gi"
+  show_if: "mlflow.enabled=true"
+  group: "MLflow"
+
+- variable: mlflow.database.type
+  label: "MLflow Database"
+  type: enum
+  description: "Backend database for MLflow"
+  default: "sqlite"
+  show_if: "mlflow.enabled=true"
+  group: "MLflow"
+  options:
+    - "sqlite"
+    - "postgresql"
+    - "mysql"
+
+- variable: mlflow.resources.cpu
+  label: "MLflow CPU Request"
+  type: string
+  description: "CPU resources for MLflow"
+  default: "500m"
+  show_if: "mlflow.enabled=true"
+  group: "MLflow"
+
+- variable: mlflow.resources.memory
+  label: "MLflow Memory Request"
+  type: string
+  description: "Memory resources for MLflow"
+  default: "1Gi"
+  show_if: "mlflow.enabled=true"
+  group: "MLflow"
+
+# Ollama Configuration
+- variable: ollama.enabled
+  label: "Enable Ollama Deployment"
+  description: "Deploy Ollama local LLM runner through AI Deployer"
+  type: boolean
+  default: false
+  group: "Ollama"
+
+- variable: ollama.version
+  label: "Ollama Version"
+  type: string
+  description: "Version of Ollama to deploy"
+  default: "0.3.0"
+  show_if: "ollama.enabled=true"
+  group: "Ollama"
+
+- variable: ollama.model
+  label: "Default Ollama Model"
+  type: string
+  description: "Default model to pull and serve"
+  default: "llama3.2:latest"
+  show_if: "ollama.enabled=true"
+  group: "Ollama"
+
+- variable: ollama.replicas
+  label: "Ollama Replicas"
+  type: int
+  description: "Number of Ollama replicas"
+  default: 1
+  show_if: "ollama.enabled=true"
+  group: "Ollama"
+
+- variable: ollama.gpu.enabled
+  label: "Enable Ollama GPU"
+  description: "Enable GPU acceleration for Ollama"
+  type: boolean
+  default: false
+  show_if: "ollama.enabled=true"
+  group: "Ollama"
+
+- variable: ollama.persistence.size
+  label: "Ollama Storage Size"
+  type: string
+  description: "Storage size for Ollama models"
+  default: "50Gi"
+  show_if: "ollama.enabled=true"
+  group: "Ollama"
+
+- variable: ollama.resources.cpu
+  label: "Ollama CPU Request"
+  type: string
+  description: "CPU resources for Ollama"
+  default: "2"
+  show_if: "ollama.enabled=true"
+  group: "Ollama"
+
+- variable: ollama.resources.memory
+  label: "Ollama Memory Request"
+  type: string
+  description: "Memory resources for Ollama"
+  default: "4Gi"
+  show_if: "ollama.enabled=true"
+  group: "Ollama"
+
+# PyTorch Configuration
+- variable: pytorch.enabled
+  label: "Enable PyTorch Deployment"
+  description: "Deploy PyTorch deep learning framework through AI Deployer"
+  type: boolean
+  default: false
+  group: "PyTorch"
+
+- variable: pytorch.version
+  label: "PyTorch Version"
+  type: string
+  description: "Version of PyTorch to deploy"
+  default: "2.2.0-cuda12.1-cudnn8-devel"
+  show_if: "pytorch.enabled=true"
+  group: "PyTorch"
+
+- variable: pytorch.workload.type
+  label: "PyTorch Workload Type"
+  type: enum
+  description: "Type of PyTorch workload"
+  default: "jupyter"
+  show_if: "pytorch.enabled=true"
+  group: "PyTorch"
+  options:
+    - "jupyter"
+    - "training"
+    - "inference"
+
+- variable: pytorch.replicas
+  label: "PyTorch Replicas"
+  type: int
+  description: "Number of PyTorch replicas"
+  default: 1
+  show_if: "pytorch.enabled=true"
+  group: "PyTorch"
+
+- variable: pytorch.gpu.enabled
+  label: "Enable PyTorch GPU"
+  description: "Enable GPU support for PyTorch"
+  type: boolean
+  default: false
+  show_if: "pytorch.enabled=true"
+  group: "PyTorch"
+
+- variable: pytorch.persistence.size
+  label: "PyTorch Storage Size"
+  type: string
+  description: "Storage size for PyTorch notebooks and data"
+  default: "20Gi"
+  show_if: "pytorch.enabled=true"
+  group: "PyTorch"
+
+- variable: pytorch.resources.cpu
+  label: "PyTorch CPU Request"
+  type: string
+  description: "CPU resources for PyTorch"
+  default: "2"
+  show_if: "pytorch.enabled=true"
+  group: "PyTorch"
+
+- variable: pytorch.resources.memory
+  label: "PyTorch Memory Request"
+  type: string
+  description: "Memory resources for PyTorch"
+  default: "8Gi"
+  show_if: "pytorch.enabled=true"
+  group: "PyTorch"
+
+# SUSE AI Observability Extension Configuration
+- variable: observability.enabled
+  label: "Enable AI Observability Extension"
+  description: "Deploy SUSE AI Observability Extension through AI Deployer"
+  type: boolean
+  default: false
+  group: "Observability"
+
+- variable: observability.version
+  label: "Observability Extension Version"
+  type: string
+  description: "Version of AI Observability Extension to deploy"
+  default: "1.0.0"
+  show_if: "observability.enabled=true"
+  group: "Observability"
+
+- variable: observability.prometheus.enabled
+  label: "Enable Prometheus"
+  description: "Enable Prometheus metrics collection"
+  type: boolean
+  default: true
+  show_if: "observability.enabled=true"
+  group: "Observability"
+
+- variable: observability.grafana.enabled
+  label: "Enable Grafana"
+  description: "Enable Grafana dashboards"
+  type: boolean
+  default: true
+  show_if: "observability.enabled=true"
+  group: "Observability"
+
+- variable: observability.persistence.size
+  label: "Observability Storage Size"
+  type: string
+  description: "Storage size for observability data"
+  default: "20Gi"
+  show_if: "observability.enabled=true"
+  group: "Observability"
+
+- variable: observability.resources.cpu
+  label: "Observability CPU Request"
+  type: string
+  description: "CPU resources for observability extension"
+  default: "500m"
+  show_if: "observability.enabled=true"
+  group: "Observability"
+
+- variable: observability.resources.memory
+  label: "Observability Memory Request"
+  type: string
+  description: "Memory resources for observability extension"
+  default: "2Gi"
+  show_if: "observability.enabled=true"
+  group: "Observability"
+
+# Advanced Configuration
 - variable: rbac.enabled
   label: "Enable RBAC"
   description: "Enable Role-Based Access Control"
   type: boolean
   default: true
-  show_if: "showAdvanced=true"
   group: "Advanced"
 
 - variable: serviceAccount.create
@@ -126,7 +439,6 @@ questions:
   description: "Create a service account for the deployer"
   type: boolean
   default: true
-  show_if: "showAdvanced=true"
   group: "Advanced"
 
 - variable: webhook.enabled
@@ -134,5 +446,11 @@ questions:
   description: "Enable admission webhooks for deployment validation"
   type: boolean
   default: false
-  show_if: "showAdvanced=true"
+  group: "Advanced"
+
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options"
+  type: boolean
+  default: false
   group: "Advanced"

@@ -5,6 +5,8 @@ image:
   tag: "v2.4.0"
   pullPolicy: IfNotPresent
 
+imagePullSecrets: "application-collection"
+
 service:
   type: ClusterIP
   port: 19530
