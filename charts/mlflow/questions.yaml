@@ -1,0 +1,148 @@
+questions:
+# General Configuration
+- variable: replicaCount
+  label: "Replica Count"
+  type: int
+  description: "Number of replicas for the MLflow deployment"
+  required: true
+  default: 1
+  group: General
+
+- variable: image.tag
+  label: "MLflow Image Tag"
+  type: string
+  description: "The container image tag for MLflow"
+  required: true
+  default: "2.10.0"
+  group: General
+
+# Service Configuration
+- variable: service.type
+  label: "Service Type"
+  description: "Method to expose the MLflow service"
+  type: enum
+  required: true
+  default: "ClusterIP"
+  group: "Network"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+
+- variable: service.port
+  label: "Service Port"
+  type: int
+  description: "Port to expose the MLflow service on"
+  required: true
+  default: 5000
+  group: "Network"
+
+# Storage Configuration
+- variable: persistence.enabled
+  label: "Enable Persistence"
+  description: "Enable persistent storage for MLflow artifacts"
+  type: boolean
+  default: true
+  group: "Storage"
+
+- variable: persistence.size
+  label: "Storage Size"
+  description: "Size of the persistent volume claim for artifacts"
+  type: string
+  default: "20Gi"
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+- variable: persistence.storageClassName
+  label: "Storage Class"
+  description: "Storage class name for the PVC. Leave empty for default"
+  type: string
+  default: ""
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+# Database Configuration
+- variable: database.type
+  label: "Database Type"
+  description: "Backend database for MLflow tracking"
+  type: enum
+  default: "sqlite"
+  group: "Database"
+  options:
+    - "sqlite"
+    - "postgresql"
+    - "mysql"
+
+- variable: database.host
+  label: "Database Host"
+  type: string
+  description: "Database host (for external database)"
+  default: ""
+  show_if: "database.type!=sqlite"
+  group: "Database"
+
+- variable: database.port
+  label: "Database Port"
+  type: int
+  description: "Database port"
+  default: 5432
+  show_if: "database.type=postgresql"
+  group: "Database"
+
+# Resource Configuration
+- variable: resources.requests.cpu
+  label: "CPU Request"
+  type: string
+  description: "CPU resources requested for MLflow"
+  default: "500m"
+  group: "Resources"
+
+- variable: resources.requests.memory
+  label: "Memory Request"
+  type: string
+  description: "Memory resources requested for MLflow"
+  default: "1Gi"
+  group: "Resources"
+
+- variable: resources.limits.cpu
+  label: "CPU Limit"
+  type: string
+  description: "CPU resource limit for MLflow"
+  default: "2"
+  group: "Resources"
+
+- variable: resources.limits.memory
+  label: "Memory Limit"
+  type: string
+  description: "Memory resource limit for MLflow"
+  default: "4Gi"
+  group: "Resources"
+
+# Advanced Configuration
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options"
+  type: boolean
+  default: false
+  group: "Advanced"
+
+- variable: artifactStore.type
+  label: "Artifact Store Type"
+  description: "Type of artifact store to use"
+  type: enum
+  default: "filesystem"
+  show_if: "showAdvanced=true"
+  group: "Advanced"
+  options:
+    - "filesystem"
+    - "s3"
+    - "azure"
+    - "gcs"
+
+- variable: auth.enabled
+  label: "Enable Authentication"
+  description: "Enable MLflow authentication"
+  type: boolean
+  default: false
+  show_if: "showAdvanced=true"
+  group: "Advanced"

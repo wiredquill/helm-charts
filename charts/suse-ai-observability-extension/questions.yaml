@@ -1,0 +1,167 @@
+questions:
+# General Configuration
+- variable: replicaCount
+  label: "Replica Count"
+  type: int
+  description: "Number of replicas for the SUSE AI Observability Extension"
+  required: true
+  default: 1
+  group: General
+
+- variable: image.tag
+  label: "SUSE AI Observability Extension Image Tag"
+  type: string
+  description: "The container image tag for SUSE AI Observability Extension"
+  required: true
+  default: "1.0.0"
+  group: General
+
+# Service Configuration
+- variable: service.type
+  label: "Service Type"
+  description: "Method to expose the SUSE AI Observability Extension service"
+  type: enum
+  required: true
+  default: "ClusterIP"
+  group: "Network"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+
+- variable: service.port
+  label: "Service Port"
+  type: int
+  description: "Port to expose the SUSE AI Observability Extension service on"
+  required: true
+  default: 3000
+  group: "Network"
+
+# Monitoring Configuration
+- variable: prometheus.enabled
+  label: "Enable Prometheus Integration"
+  description: "Enable Prometheus metrics collection"
+  type: boolean
+  default: true
+  group: "Monitoring"
+
+- variable: prometheus.port
+  label: "Prometheus Metrics Port"
+  type: int
+  description: "Port for Prometheus metrics endpoint"
+  default: 9090
+  show_if: "prometheus.enabled=true"
+  group: "Monitoring"
+
+- variable: grafana.enabled
+  label: "Enable Grafana Dashboards"
+  description: "Deploy pre-configured Grafana dashboards"
+  type: boolean
+  default: true
+  group: "Monitoring"
+
+# OTLP Configuration
+- variable: otlp.enabled
+  label: "Enable OTLP Collection"
+  description: "Enable OpenTelemetry Protocol data collection"
+  type: boolean
+  default: true
+  group: "Telemetry"
+
+- variable: otlp.endpoint
+  label: "OTLP Endpoint"
+  type: string
+  description: "OpenTelemetry collector endpoint"
+  default: "http://opentelemetry-collector:4318"
+  show_if: "otlp.enabled=true"
+  group: "Telemetry"
+
+# Storage Configuration
+- variable: persistence.enabled
+  label: "Enable Persistence"
+  description: "Enable persistent storage for metrics and logs"
+  type: boolean
+  default: true
+  group: "Storage"
+
+- variable: persistence.size
+  label: "Storage Size"
+  description: "Size of the persistent volume claim"
+  type: string
+  default: "20Gi"
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+- variable: persistence.storageClassName
+  label: "Storage Class"
+  description: "Storage class name for the PVC. Leave empty for default"
+  type: string
+  default: ""
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+# Resource Configuration
+- variable: resources.requests.cpu
+  label: "CPU Request"
+  type: string
+  description: "CPU resources requested for SUSE AI Observability Extension"
+  default: "500m"
+  group: "Resources"
+
+- variable: resources.requests.memory
+  label: "Memory Request"
+  type: string
+  description: "Memory resources requested for SUSE AI Observability Extension"
+  default: "2Gi"
+  group: "Resources"
+
+- variable: resources.limits.cpu
+  label: "CPU Limit"
+  type: string
+  description: "CPU resource limit for SUSE AI Observability Extension"
+  default: "2"
+  group: "Resources"
+
+- variable: resources.limits.memory
+  label: "Memory Limit"
+  type: string
+  description: "Memory resource limit for SUSE AI Observability Extension"
+  default: "8Gi"
+  group: "Resources"
+
+# Advanced Configuration
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options"
+  type: boolean
+  default: false
+  group: "Advanced"
+
+- variable: alerting.enabled
+  label: "Enable Alerting"
+  description: "Enable alerting capabilities"
+  type: boolean
+  default: false
+  show_if: "showAdvanced=true"
+  group: "Advanced"
+
+- variable: logging.level
+  label: "Log Level"
+  description: "Logging level for the application"
+  type: enum
+  default: "info"
+  show_if: "showAdvanced=true"
+  group: "Advanced"
+  options:
+    - "debug"
+    - "info"
+    - "warn"
+    - "error"
+
+- variable: retention.days
+  label: "Data Retention (Days)"
+  type: int
+  description: "Number of days to retain observability data"
+  default: 30
+  show_if: "showAdvanced=true"
+  group: "Advanced"

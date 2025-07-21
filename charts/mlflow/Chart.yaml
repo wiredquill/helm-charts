@@ -1,0 +1,9 @@
+apiVersion: v2
+name: mlflow
+description: MLflow is an open source platform to manage the ML lifecycle, including experimentation, reproducibility, deployment, and a central model registry. It provides tools for tracking experiments, packaging code into reproducible runs, and sharing and deploying models.
+
+type: application
+
+version: 0.1.0
+
+appVersion: "2.10.0"

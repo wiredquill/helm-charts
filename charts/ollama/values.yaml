@@ -1,0 +1,38 @@
+replicaCount: 1
+
+image:
+  repository: ollama/ollama
+  tag: "0.3.0"
+  pullPolicy: IfNotPresent
+
+model: "llama3.2:latest"
+
+service:
+  type: ClusterIP
+  port: 11434
+
+hardware:
+  type: nvidia
+
+gpu:
+  enabled: false
+
+persistence:
+  enabled: true
+  size: 50Gi
+  storageClassName: ""
+
+resources:
+  requests:
+    cpu: "2"
+    memory: "4Gi"
+  limits:
+    cpu: "8"
+    memory: "16Gi"
+
+# Advanced configuration
+showAdvanced: false
+additionalModels: ""
+env:
+  OLLAMA_KEEP_ALIVE: "5m"
+  OLLAMA_NUM_PARALLEL: 1

@@ -1,0 +1,9 @@
+apiVersion: v2
+name: pytorch
+description: PyTorch is an optimized tensor library for deep learning using GPUs and CPUs. It provides a Python package for high-level features like tensor computation with strong GPU acceleration and deep neural networks built on a tape-based autograd system.
+
+type: application
+
+version: 0.1.0
+
+appVersion: "2.2.0"

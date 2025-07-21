@@ -1,0 +1,9 @@
+apiVersion: v2
+name: milvus
+description: Milvus is an open-source vector database built to power embedding similarity search and AI applications. It provides unstructured data search capabilities for AI applications and offers a consistent user experience regardless of the deployment environment.
+
+type: application
+
+version: 0.1.0
+
+appVersion: "2.4.0"

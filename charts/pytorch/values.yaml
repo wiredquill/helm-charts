@@ -1,0 +1,38 @@
+replicaCount: 1
+
+image:
+  repository: pytorch/pytorch
+  tag: "2.2.0-cuda12.1-cudnn8-devel"
+  pullPolicy: IfNotPresent
+
+workload:
+  type: jupyter
+
+service:
+  type: ClusterIP
+  port: 8888
+
+gpu:
+  enabled: false
+  count: 1
+
+persistence:
+  enabled: true
+  size: 20Gi
+  storageClassName: ""
+
+resources:
+  requests:
+    cpu: "2"
+    memory: "8Gi"
+  limits:
+    cpu: "8"
+    memory: "32Gi"
+
+# Advanced configuration
+showAdvanced: false
+jupyter:
+  token: ""
+distributedTraining:
+  enabled: false
+  backend: nccl

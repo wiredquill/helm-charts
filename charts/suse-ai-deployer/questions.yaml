@@ -1,0 +1,138 @@
+questions:
+# General Configuration
+- variable: replicaCount
+  label: "Replica Count"
+  type: int
+  description: "Number of replicas for the SUSE AI Deployer"
+  required: true
+  default: 1
+  group: General
+
+- variable: image.tag
+  label: "SUSE AI Deployer Image Tag"
+  type: string
+  description: "The container image tag for SUSE AI Deployer"
+  required: true
+  default: "1.0.0"
+  group: General
+
+# Service Configuration
+- variable: service.type
+  label: "Service Type"
+  description: "Method to expose the SUSE AI Deployer service"
+  type: enum
+  required: true
+  default: "ClusterIP"
+  group: "Network"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+
+- variable: service.port
+  label: "Service Port"
+  type: int
+  description: "Port to expose the SUSE AI Deployer service on"
+  required: true
+  default: 8080
+  group: "Network"
+
+# Configuration
+- variable: config.namespace
+  label: "Target Namespace"
+  type: string
+  description: "Default namespace for AI workload deployments"
+  default: "default"
+  group: "Configuration"
+
+- variable: config.registry
+  label: "Container Registry"
+  type: string
+  description: "Default container registry for AI workloads"
+  default: "registry.suse.com"
+  group: "Configuration"
+
+# Storage Configuration
+- variable: persistence.enabled
+  label: "Enable Persistence"
+  description: "Enable persistent storage for deployment configurations"
+  type: boolean
+  default: true
+  group: "Storage"
+
+- variable: persistence.size
+  label: "Storage Size"
+  description: "Size of the persistent volume claim"
+  type: string
+  default: "10Gi"
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+- variable: persistence.storageClassName
+  label: "Storage Class"
+  description: "Storage class name for the PVC. Leave empty for default"
+  type: string
+  default: ""
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+# Resource Configuration
+- variable: resources.requests.cpu
+  label: "CPU Request"
+  type: string
+  description: "CPU resources requested for SUSE AI Deployer"
+  default: "500m"
+  group: "Resources"
+
+- variable: resources.requests.memory
+  label: "Memory Request"
+  type: string
+  description: "Memory resources requested for SUSE AI Deployer"
+  default: "1Gi"
+  group: "Resources"
+
+- variable: resources.limits.cpu
+  label: "CPU Limit"
+  type: string
+  description: "CPU resource limit for SUSE AI Deployer"
+  default: "2"
+  group: "Resources"
+
+- variable: resources.limits.memory
+  label: "Memory Limit"
+  type: string
+  description: "Memory resource limit for SUSE AI Deployer"
+  default: "4Gi"
+  group: "Resources"
+
+# Advanced Configuration
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options"
+  type: boolean
+  default: false
+  group: "Advanced"
+
+- variable: rbac.enabled
+  label: "Enable RBAC"
+  description: "Enable Role-Based Access Control"
+  type: boolean
+  default: true
+  show_if: "showAdvanced=true"
+  group: "Advanced"
+
+- variable: serviceAccount.create
+  label: "Create Service Account"
+  description: "Create a service account for the deployer"
+  type: boolean
+  default: true
+  show_if: "showAdvanced=true"
+  group: "Advanced"
+
+- variable: webhook.enabled
+  label: "Enable Webhooks"
+  description: "Enable admission webhooks for deployment validation"
+  type: boolean
+  default: false
+  show_if: "showAdvanced=true"
+  group: "Advanced"

@@ -1,0 +1,156 @@
+questions:
+# General Configuration
+- variable: replicaCount
+  label: "Replica Count"
+  type: int
+  description: "Number of replicas for the PyTorch deployment"
+  required: true
+  default: 1
+  group: General
+
+- variable: image.tag
+  label: "PyTorch Image Tag"
+  type: string
+  description: "The container image tag for PyTorch"
+  required: true
+  default: "2.2.0-cuda12.1-cudnn8-devel"
+  group: General
+
+- variable: workload.type
+  label: "Workload Type"
+  description: "Type of PyTorch workload to deploy"
+  type: enum
+  required: true
+  default: "jupyter"
+  group: General
+  options:
+    - "jupyter"
+    - "training"
+    - "inference"
+
+# Service Configuration
+- variable: service.type
+  label: "Service Type"
+  description: "Method to expose the PyTorch service"
+  type: enum
+  required: true
+  default: "ClusterIP"
+  group: "Network"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+
+- variable: service.port
+  label: "Service Port"
+  type: int
+  description: "Port to expose the PyTorch service on"
+  required: true
+  default: 8888
+  show_if: "workload.type=jupyter"
+  group: "Network"
+
+# Hardware Configuration
+- variable: gpu.enabled
+  label: "Enable GPU Support"
+  description: "Enable NVIDIA GPU support for PyTorch"
+  type: boolean
+  default: false
+  group: "Hardware"
+
+- variable: gpu.count
+  label: "GPU Count"
+  type: int
+  description: "Number of GPUs to request"
+  default: 1
+  show_if: "gpu.enabled=true"
+  group: "Hardware"
+
+# Storage Configuration
+- variable: persistence.enabled
+  label: "Enable Persistence"
+  description: "Enable persistent storage for notebooks and data"
+  type: boolean
+  default: true
+  group: "Storage"
+
+- variable: persistence.size
+  label: "Storage Size"
+  description: "Size of the persistent volume claim"
+  type: string
+  default: "20Gi"
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+- variable: persistence.storageClassName
+  label: "Storage Class"
+  description: "Storage class name for the PVC. Leave empty for default"
+  type: string
+  default: ""
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+# Resource Configuration
+- variable: resources.requests.cpu
+  label: "CPU Request"
+  type: string
+  description: "CPU resources requested for PyTorch"
+  default: "2"
+  group: "Resources"
+
+- variable: resources.requests.memory
+  label: "Memory Request"
+  type: string
+  description: "Memory resources requested for PyTorch"
+  default: "8Gi"
+  group: "Resources"
+
+- variable: resources.limits.cpu
+  label: "CPU Limit"
+  type: string
+  description: "CPU resource limit for PyTorch"
+  default: "8"
+  group: "Resources"
+
+- variable: resources.limits.memory
+  label: "Memory Limit"
+  type: string
+  description: "Memory resource limit for PyTorch"
+  default: "32Gi"
+  group: "Resources"
+
+# Advanced Configuration
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options"
+  type: boolean
+  default: false
+  group: "Advanced"
+
+- variable: jupyter.token
+  label: "Jupyter Token"
+  type: string
+  description: "Access token for Jupyter notebook (leave empty for auto-generated)"
+  default: ""
+  show_if: "showAdvanced=true && workload.type=jupyter"
+  group: "Advanced"
+
+- variable: distributedTraining.enabled
+  label: "Enable Distributed Training"
+  description: "Enable PyTorch distributed training capabilities"
+  type: boolean
+  default: false
+  show_if: "showAdvanced=true && workload.type=training"
+  group: "Advanced"
+
+- variable: distributedTraining.backend
+  label: "Distributed Backend"
+  description: "Backend for distributed training"
+  type: enum
+  default: "nccl"
+  show_if: "showAdvanced=true && distributedTraining.enabled=true"
+  group: "Advanced"
+  options:
+    - "nccl"
+    - "gloo"
+    - "mpi"

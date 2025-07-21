@@ -1,0 +1,123 @@
+questions:
+# General Configuration
+- variable: replicaCount
+  label: "Replica Count"
+  type: int
+  description: "Number of replicas for the Milvus deployment"
+  required: true
+  default: 1
+  group: General
+
+- variable: image.tag
+  label: "Milvus Image Tag"
+  type: string
+  description: "The container image tag for Milvus"
+  required: true
+  default: "v2.4.0"
+  group: General
+
+# Service Configuration
+- variable: service.type
+  label: "Service Type"
+  description: "Method to expose the Milvus service"
+  type: enum
+  required: true
+  default: "ClusterIP"
+  group: "Network"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+
+- variable: service.port
+  label: "Service Port"
+  type: int
+  description: "Port to expose the Milvus service on"
+  required: true
+  default: 19530
+  group: "Network"
+
+# Storage Configuration
+- variable: persistence.enabled
+  label: "Enable Persistence"
+  description: "Enable persistent storage for Milvus data"
+  type: boolean
+  default: true
+  group: "Storage"
+
+- variable: persistence.size
+  label: "Storage Size"
+  description: "Size of the persistent volume claim"
+  type: string
+  default: "50Gi"
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+- variable: persistence.storageClassName
+  label: "Storage Class"
+  description: "Storage class name for the PVC. Leave empty for default"
+  type: string
+  default: ""
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+# Resource Configuration
+- variable: resources.requests.cpu
+  label: "CPU Request"
+  type: string
+  description: "CPU resources requested for Milvus"
+  default: "1"
+  group: "Resources"
+
+- variable: resources.requests.memory
+  label: "Memory Request"
+  type: string
+  description: "Memory resources requested for Milvus"
+  default: "4Gi"
+  group: "Resources"
+
+- variable: resources.limits.cpu
+  label: "CPU Limit"
+  type: string
+  description: "CPU resource limit for Milvus"
+  default: "4"
+  group: "Resources"
+
+- variable: resources.limits.memory
+  label: "Memory Limit"
+  type: string
+  description: "Memory resource limit for Milvus"
+  default: "16Gi"
+  group: "Resources"
+
+# Advanced Configuration
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options"
+  type: boolean
+  default: false
+  group: "Advanced"
+
+- variable: etcd.enabled
+  label: "Enable Embedded etcd"
+  description: "Use embedded etcd for metadata storage"
+  type: boolean
+  default: true
+  show_if: "showAdvanced=true"
+  group: "Advanced"
+
+- variable: minio.enabled
+  label: "Enable Embedded MinIO"
+  description: "Use embedded MinIO for object storage"
+  type: boolean
+  default: true
+  show_if: "showAdvanced=true"
+  group: "Advanced"
+
+- variable: pulsar.enabled
+  label: "Enable Embedded Pulsar"
+  description: "Use embedded Pulsar for message queue"
+  type: boolean
+  default: true
+  show_if: "showAdvanced=true"
+  group: "Advanced"

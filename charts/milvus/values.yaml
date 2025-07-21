@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  repository: milvusdb/milvus
+  tag: "v2.4.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 19530
+
+persistence:
+  enabled: true
+  size: 50Gi
+  storageClassName: ""
+
+resources:
+  requests:
+    cpu: "1"
+    memory: "4Gi"
+  limits:
+    cpu: "4"
+    memory: "16Gi"
+
+# Advanced configuration
+showAdvanced: false
+etcd:
+  enabled: true
+minio:
+  enabled: true
+pulsar:
+  enabled: true

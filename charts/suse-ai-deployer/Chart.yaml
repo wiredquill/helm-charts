@@ -1,0 +1,9 @@
+apiVersion: v2
+name: suse-ai-deployer
+description: SUSE AI Deployer is a deployment tool designed to simplify the deployment and management of AI workloads. It provides automated deployment capabilities for AI infrastructure components and helps orchestrate complex AI application stacks.
+
+type: application
+
+version: 0.1.0
+
+appVersion: "1.0.0"

@@ -1,0 +1,192 @@
+name: Helm Chart CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'charts/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'charts/**'
+
+env:
+  HELM_VERSION: v3.14.0
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      charts: ${{ steps.changes.outputs.charts }}
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed charts
+        id: changes
+        run: |
+          # Get list of changed files
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }})
+          else
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          fi
+          
+          # Extract unique chart directories
+          CHANGED_CHARTS=$(echo "$CHANGED_FILES" | grep '^charts/' | cut -d'/' -f2 | sort -u | tr '\n' ' ')
+          
+          echo "Changed files: $CHANGED_FILES"
+          echo "Changed charts: $CHANGED_CHARTS"
+          echo "charts=$CHANGED_CHARTS" >> $GITHUB_OUTPUT
+
+      - name: Set matrix for parallel jobs
+        id: set-matrix
+        run: |
+          CHARTS="${{ steps.changes.outputs.charts }}"
+          if [ -z "$CHARTS" ]; then
+            echo "matrix={\"include\":[]}" >> $GITHUB_OUTPUT
+          else
+            MATRIX_JSON=$(echo "$CHARTS" | tr ' ' '\n' | jq -R . | jq -s 'map(select(length > 0)) | map({"chart": .}) | {"include": .}')
+            echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+          fi
+
+  lint-and-test:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.charts != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.6.1
+
+      - name: Lint chart
+        run: |
+          ct lint --config .github/ct.yaml --charts charts/${{ matrix.chart }}
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.9.0
+        if: github.event_name == 'pull_request'
+
+      - name: Test chart installation
+        if: github.event_name == 'pull_request'
+        run: |
+          ct install --config .github/ct.yaml --charts charts/${{ matrix.chart }}
+
+  version-and-package:
+    needs: [detect-changes, lint-and-test]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.charts != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Bump chart version
+        id: version
+        run: |
+          CHART_PATH="charts/${{ matrix.chart }}"
+          CHART_YAML="$CHART_PATH/Chart.yaml"
+          
+          # Get current version
+          CURRENT_VERSION=$(yq eval '.version' "$CHART_YAML")
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Increment patch version
+          NEW_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
+          echo "New version: $NEW_VERSION"
+          
+          # Update Chart.yaml
+          yq eval ".version = \"$NEW_VERSION\"" -i "$CHART_YAML"
+          
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "chart_path=$CHART_PATH" >> $GITHUB_OUTPUT
+
+      - name: Package chart
+        run: |
+          mkdir -p packages
+          helm package charts/${{ matrix.chart }} --destination packages/
+
+      - name: Commit version bump
+        run: |
+          git add charts/${{ matrix.chart }}/Chart.yaml
+          git commit -m "chore(${{ matrix.chart }}): bump version to ${{ steps.version.outputs.new_version }}"
+
+      - name: Push changes
+        run: |
+          git push origin main
+
+      - name: Upload chart package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.chart }}-${{ steps.version.outputs.new_version }}
+          path: packages/${{ matrix.chart }}-${{ steps.version.outputs.new_version }}.tgz
+
+  release:
+    needs: [detect-changes, version-and-package]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.charts != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all chart packages
+        uses: actions/download-artifact@v4
+        with:
+          path: packages/
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: ${{ env.HELM_VERSION }}
+
+      - name: Create GitHub Release
+        if: ${{ needs.detect-changes.outputs.charts != '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CHARTS="${{ needs.detect-changes.outputs.charts }}"
+          RELEASE_TAG="charts-$(date +%Y%m%d-%H%M%S)"
+          
+          # Create release notes
+          echo "# Helm Charts Release" > release_notes.md
+          echo "" >> release_notes.md
+          echo "Updated charts:" >> release_notes.md
+          for chart in $CHARTS; do
+            echo "- $chart" >> release_notes.md
+          done
+          
+          # Create release
+          gh release create "$RELEASE_TAG" \
+            --title "Helm Charts Release - $(date +%Y-%m-%d)" \
+            --notes-file release_notes.md \
+            packages/*/*.tgz

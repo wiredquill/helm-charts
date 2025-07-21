@@ -1,0 +1,155 @@
+questions:
+# General Configuration
+- variable: replicaCount
+  label: "Replica Count"
+  type: int
+  description: "Number of replicas for the Ollama deployment"
+  required: true
+  default: 1
+  group: General
+
+- variable: image.tag
+  label: "Ollama Image Tag"
+  type: string
+  description: "The container image tag for Ollama"
+  required: true
+  default: "0.3.0"
+  group: General
+
+- variable: model
+  label: "Default Model"
+  type: string
+  description: "Default Ollama model to pull and serve"
+  required: true
+  default: "llama3.2:latest"
+  group: General
+
+# Service Configuration
+- variable: service.type
+  label: "Service Type"
+  description: "Method to expose the Ollama service"
+  type: enum
+  required: true
+  default: "ClusterIP"
+  group: "Network"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+
+- variable: service.port
+  label: "Service Port"
+  type: int
+  description: "Port to expose the Ollama service on"
+  required: true
+  default: 11434
+  group: "Network"
+
+# Hardware Configuration
+- variable: hardware.type
+  label: "Target Hardware"
+  description: "Select the target hardware architecture for deployment"
+  type: enum
+  required: true
+  default: "nvidia"
+  group: "Hardware"
+  options:
+    - label: "NVIDIA GPU (amd64)"
+      value: "nvidia"
+    - label: "Apple Silicon / CPU (arm64)"
+      value: "apple"
+    - label: "Intel/AMD CPU (amd64)"
+      value: "cpu"
+
+- variable: gpu.enabled
+  label: "Enable GPU Acceleration"
+  description: "Enable NVIDIA GPU acceleration (requires GPU nodes)"
+  type: boolean
+  default: false
+  show_if: "hardware.type=nvidia"
+  group: "Hardware"
+
+# Storage Configuration
+- variable: persistence.enabled
+  label: "Enable Model Persistence"
+  description: "Enable persistent storage for Ollama models"
+  type: boolean
+  default: true
+  group: "Storage"
+
+- variable: persistence.size
+  label: "Storage Size"
+  description: "Size of the persistent volume claim for models"
+  type: string
+  default: "50Gi"
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+- variable: persistence.storageClassName
+  label: "Storage Class"
+  description: "Storage class name for the PVC. Leave empty for default"
+  type: string
+  default: ""
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+# Resource Configuration
+- variable: resources.requests.cpu
+  label: "CPU Request"
+  type: string
+  description: "CPU resources requested for Ollama"
+  default: "2"
+  group: "Resources"
+
+- variable: resources.requests.memory
+  label: "Memory Request"
+  type: string
+  description: "Memory resources requested for Ollama"
+  default: "4Gi"
+  group: "Resources"
+
+- variable: resources.limits.cpu
+  label: "CPU Limit"
+  type: string
+  description: "CPU resource limit for Ollama"
+  default: "8"
+  group: "Resources"
+
+- variable: resources.limits.memory
+  label: "Memory Limit"
+  type: string
+  description: "Memory resource limit for Ollama"
+  default: "16Gi"
+  group: "Resources"
+
+# Advanced Configuration
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options"
+  type: boolean
+  default: false
+  group: "Advanced"
+
+- variable: additionalModels
+  label: "Additional Models"
+  type: string
+  description: "Comma-separated list of additional models to pull"
+  default: ""
+  show_if: "showAdvanced=true"
+  group: "Advanced"
+
+- variable: env.OLLAMA_KEEP_ALIVE
+  label: "Keep Alive Duration"
+  type: string
+  description: "How long to keep models in memory (e.g., '5m', '1h')"
+  default: "5m"
+  show_if: "showAdvanced=true"
+  group: "Advanced"
+
+- variable: env.OLLAMA_NUM_PARALLEL
+  label: "Parallel Requests"
+  type: int
+  description: "Number of parallel requests to process"
+  default: 1
+  show_if: "showAdvanced=true"
+  group: "Advanced"
