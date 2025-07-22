@@ -62,4 +62,17 @@ entries:
     urls:
     - llm-comm-suse-0.1.28.tgz
     version: 0.1.28
-generated: "2025-07-17T15:23:48.614757379Z"
+  n8n:
+  - apiVersion: v2
+    appVersion: 1.19.4
+    created: "2025-07-22T02:03:09.994521014Z"
+    description: n8n is a powerful workflow automation platform that allows you to
+      connect anything to everything via its open, fair-code model. Build complex
+      automations 10x faster with 400+ integrations and native AI capabilities.
+    digest: 9f005d4c7041c0bdbb3c107be40d1bc30e24c8401e5405089e050a585736ff2e
+    name: n8n
+    type: application
+    urls:
+    - n8n-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-07-22T02:03:09.99458819Z"
