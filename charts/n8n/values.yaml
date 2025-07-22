@@ -8,7 +8,7 @@ image:
 imagePullSecrets: "application-collection"
 
 service:
-  type: ClusterIP
+  type: LoadBalancer
   port: 5678
 
 # Database Configuration
@@ -24,7 +24,7 @@ database:
 persistence:
   enabled: true
   size: 10Gi
-  storageClassName: ""
+  storageClassName: "local-path"
 
 # Resource Configuration
 resources:

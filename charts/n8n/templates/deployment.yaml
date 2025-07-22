@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "n8n.fullname" . }}
+  labels:
+    {{- include "n8n.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "n8n.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "n8n.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 5678
+              protocol: TCP
+          env:
+            - name: N8N_PORT
+              value: "5678"
+            - name: GENERIC_TIMEZONE
+              value: {{ .Values.n8n.timezone | quote }}
+            - name: TZ
+              value: {{ .Values.n8n.timezone | quote }}
+            {{- if eq .Values.database.type "postgresql" }}
+            - name: DB_TYPE
+              value: "postgresdb"
+            - name: DB_POSTGRESDB_HOST
+              value: {{ .Values.database.host | quote }}
+            - name: DB_POSTGRESDB_PORT
+              value: {{ .Values.database.port | quote }}
+            - name: DB_POSTGRESDB_DATABASE
+              value: {{ .Values.database.name | quote }}
+            - name: DB_POSTGRESDB_USER
+              value: {{ .Values.database.username | quote }}
+            - name: DB_POSTGRESDB_PASSWORD
+              value: {{ .Values.database.password | quote }}
+            {{- end }}
+            {{- if .Values.n8n.basicAuth.enabled }}
+            - name: N8N_BASIC_AUTH_ACTIVE
+              value: "true"
+            - name: N8N_BASIC_AUTH_USER
+              value: {{ .Values.n8n.basicAuth.username | quote }}
+            - name: N8N_BASIC_AUTH_PASSWORD
+              value: {{ .Values.n8n.basicAuth.password | quote }}
+            {{- end }}
+            {{- if .Values.n8n.encryption.enabled }}
+            - name: N8N_ENCRYPTION_KEY
+              value: {{ .Values.n8n.encryption.key | quote }}
+            {{- end }}
+            {{- if .Values.n8n.webhooks.enabled }}
+            - name: WEBHOOK_URL
+              value: {{ .Values.n8n.webhooks.url | quote }}
+            {{- end }}
+            - name: N8N_LOG_LEVEL
+              value: {{ .Values.n8n.logs.level | quote }}
+            - name: N8N_LOG_OUTPUT
+              value: {{ .Values.n8n.logs.output | quote }}
+            {{- if .Values.n8n.endpoints.metrics }}
+            - name: N8N_METRICS
+              value: "true"
+            {{- end }}
+            {{- if .Values.n8n.userManagement.enabled }}
+            - name: N8N_USER_MANAGEMENT_DISABLED
+              value: "false"
+            {{- else }}
+            - name: N8N_USER_MANAGEMENT_DISABLED
+              value: "true"
+            {{- end }}
+            - name: EXECUTIONS_PROCESS
+              value: {{ .Values.n8n.executions.process | quote }}
+            - name: EXECUTIONS_TIMEOUT
+              value: {{ .Values.n8n.executions.timeout | quote }}
+            - name: EXECUTIONS_TIMEOUT_MAX
+              value: {{ .Values.n8n.executions.maxTimeout | quote }}
+            {{- if .Values.n8n.queue.bull.enabled }}
+            - name: QUEUE_BULL_REDIS_HOST
+              value: {{ .Values.n8n.queue.bull.redis.host | quote }}
+            - name: QUEUE_BULL_REDIS_PORT
+              value: {{ .Values.n8n.queue.bull.redis.port | quote }}
+            {{- end }}
+            {{- if .Values.n8n.security.excludeNodes }}
+            - name: NODES_EXCLUDE
+              value: {{ .Values.n8n.security.excludeNodes | quote }}
+            {{- end }}
+          volumeMounts:
+            {{- if .Values.persistence.enabled }}
+            - name: data
+              mountPath: /home/node/.n8n
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+      volumes:
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "n8n.fullname" . }}-data
+        {{- end }}
