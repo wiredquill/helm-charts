@@ -1,0 +1,96 @@
+replicaCount: 1
+
+image:
+  repository: docker.n8n.io/n8nio/n8n
+  tag: "1.19.4"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: "application-collection"
+
+service:
+  type: ClusterIP
+  port: 5678
+
+# Database Configuration
+database:
+  type: sqlite
+  host: ""
+  port: 5432
+  name: "n8n"
+  username: "n8n"
+  password: ""
+
+# Storage Configuration
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClassName: ""
+
+# Resource Configuration
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "2"
+    memory: "4Gi"
+
+# n8n Configuration
+n8n:
+  timezone: "UTC"
+  
+  # Basic Authentication
+  basicAuth:
+    enabled: false
+    username: "admin"
+    password: ""
+  
+  # Data Encryption
+  encryption:
+    enabled: true
+    key: ""
+  
+  # Webhooks
+  webhooks:
+    enabled: true
+    url: ""
+  
+  # API Endpoints
+  endpoints:
+    rest: true
+    metrics: false
+  
+  # Logging
+  logs:
+    level: "info"
+    output: "console"
+  
+  # User Management
+  userManagement:
+    enabled: false
+  
+  # Workflow Execution
+  executions:
+    process: "main"
+    timeout: 3600
+    maxTimeout: 7200
+  
+  # Queue Configuration
+  queue:
+    bull:
+      enabled: false
+      redis:
+        host: ""
+        port: 6379
+  
+  # External Storage
+  external:
+    storage:
+      type: "filesystem"
+  
+  # Security
+  security:
+    excludeNodes: ""
+
+# Advanced configuration
+showAdvanced: false

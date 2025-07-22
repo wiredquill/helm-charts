@@ -1,0 +1,346 @@
+questions:
+# General Configuration
+- variable: replicaCount
+  label: "Replica Count"
+  type: int
+  description: "Number of n8n pods to run. Use 1 for development, 2+ for production high availability."
+  required: true
+  default: 1
+  group: General
+
+- variable: image.repository
+  label: "n8n Image Repository"
+  type: string
+  description: "Container registry for n8n images. Use official 'docker.n8n.io/n8nio/n8n' or your private registry."
+  default: "docker.n8n.io/n8nio/n8n"
+  group: General
+
+- variable: image.tag
+  label: "n8n Image Tag"
+  type: string
+  description: "n8n version to deploy. Use stable versions like '1.19.4' for production environments."
+  required: true
+  default: "1.19.4"
+  group: General
+
+- variable: image.pullPolicy
+  label: "Image Pull Policy"
+  type: enum
+  description: "When to pull container images. 'IfNotPresent' (recommended) pulls only if image not cached locally, 'Always' pulls on every restart, 'Never' uses only cached images."
+  default: "IfNotPresent"
+  group: General
+  options:
+    - "IfNotPresent"
+    - "Always"
+    - "Never"
+
+- variable: imagePullSecrets
+  label: "Image Pull Secrets"
+  type: string
+  description: "Comma-separated list of Kubernetes secrets for pulling private container images. Use 'application-collection' for default registry access."
+  default: "application-collection"
+  group: General
+
+# Service Configuration
+- variable: service.type
+  label: "Service Type"
+  description: "How to expose n8n web interface: 'ClusterIP' (internal only), 'NodePort' (external via node IP:port), 'LoadBalancer' (cloud LB with external IP)."
+  type: enum
+  required: true
+  default: "ClusterIP"
+  group: General
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+
+- variable: service.port
+  label: "Service Port"
+  type: int
+  description: "TCP port for n8n web interface and API. Default 5678 is the standard n8n port for user access."
+  required: true
+  default: 5678
+  group: General
+
+# Database Configuration
+- variable: database.type
+  label: "Database Type"
+  description: "Backend database for n8n workflows and data. 'sqlite' for simple setups, 'postgresql' for production with better performance and concurrent access."
+  type: enum
+  required: true
+  default: "sqlite"
+  group: General
+  options:
+    - "sqlite"
+    - "postgresql"
+
+- variable: database.host
+  label: "Database Host"
+  type: string
+  description: "Hostname or IP address of PostgreSQL database server. Required when using external PostgreSQL instead of embedded SQLite."
+  default: ""
+  show_if: "database.type=postgresql"
+  group: General
+
+- variable: database.port
+  label: "Database Port"
+  type: int
+  description: "TCP port for PostgreSQL database connection. Standard PostgreSQL port is 5432."
+  default: 5432
+  show_if: "database.type=postgresql"
+  group: General
+
+- variable: database.name
+  label: "Database Name"
+  type: string
+  description: "Name of the PostgreSQL database to use for n8n data."
+  default: "n8n"
+  show_if: "database.type=postgresql"
+  group: General
+
+- variable: database.username
+  label: "Database Username"
+  type: string
+  description: "Username for PostgreSQL database authentication."
+  default: "n8n"
+  show_if: "database.type=postgresql"
+  group: General
+
+- variable: database.password
+  label: "Database Password"
+  type: password
+  description: "Password for PostgreSQL database authentication. Use a strong password for production."
+  default: ""
+  show_if: "database.type=postgresql"
+  group: General
+
+# Storage Configuration
+- variable: persistence.enabled
+  label: "Enable Persistence"
+  description: "Store n8n data persistently across pod restarts. Essential for production to preserve workflows, credentials, and execution data."
+  type: boolean
+  default: true
+  group: General
+
+- variable: persistence.size
+  label: "Storage Size"
+  description: "Amount of persistent storage for n8n data and SQLite database. Start with 10Gi, increase based on workflow complexity and execution history."
+  type: string
+  default: "10Gi"
+  show_if: "persistence.enabled=true"
+  group: General
+
+- variable: persistence.storageClassName
+  label: "Storage Class"
+  description: "Kubernetes storage class for performance characteristics. Leave empty to use cluster default, or specify 'fast-ssd' for better performance."
+  type: string
+  default: ""
+  show_if: "persistence.enabled=true"
+  group: General
+
+# Resource Configuration
+- variable: resources.requests.cpu
+  label: "CPU Request"
+  type: string
+  description: "Guaranteed CPU for n8n workflows. 500m (0.5 cores) suitable for light workflows, increase for complex automations or high execution load."
+  default: "500m"
+  group: General
+
+- variable: resources.requests.memory
+  label: "Memory Request"
+  type: string
+  description: "Guaranteed RAM for n8n processes and workflow execution. 1Gi minimum, increase for complex workflows or large data processing."
+  default: "1Gi"
+  group: General
+
+- variable: resources.limits.cpu
+  label: "CPU Limit"
+  type: string
+  description: "Maximum CPU cores n8n can use. Prevents resource starvation - set 2-4x the request value for workflow spikes."
+  default: "2"
+  group: General
+
+- variable: resources.limits.memory
+  label: "Memory Limit"
+  type: string
+  description: "Maximum RAM before container restart. Set 2-4x request to handle memory spikes during complex workflow execution."
+  default: "4Gi"
+  group: General
+
+# Basic Environment Configuration
+- variable: n8n.timezone
+  label: "Timezone"
+  type: string
+  description: "Timezone for n8n scheduling and logs. Use standard timezone format like 'America/New_York', 'Europe/London', 'UTC'."
+  default: "UTC"
+  group: General
+
+- variable: n8n.basicAuth.enabled
+  label: "Enable Basic Authentication"
+  description: "Require username/password to access n8n interface. Recommended for production environments."
+  type: boolean
+  default: false
+  group: General
+
+- variable: n8n.basicAuth.username
+  label: "Basic Auth Username"
+  type: string
+  description: "Username for n8n web interface access. Choose a secure username for production."
+  default: "admin"
+  show_if: "n8n.basicAuth.enabled=true"
+  group: General
+
+- variable: n8n.basicAuth.password
+  label: "Basic Auth Password"
+  type: password
+  description: "Password for n8n web interface access. Use a strong password for production security."
+  default: ""
+  show_if: "n8n.basicAuth.enabled=true"
+  group: General
+
+# Advanced Configuration
+- variable: n8n.encryption.enabled
+  label: "Enable Data Encryption"
+  description: "Encrypt sensitive data like credentials in the database. Highly recommended for production environments."
+  type: boolean
+  default: true
+  group: "Advanced"
+
+- variable: n8n.encryption.key
+  label: "Encryption Key"
+  type: password
+  description: "Key for encrypting sensitive data. Must be exactly 24 characters long. Generate a secure random key for production."
+  default: ""
+  show_if: "n8n.encryption.enabled=true"
+  group: "Advanced"
+
+- variable: n8n.webhooks.enabled
+  label: "Enable Webhooks"
+  description: "Allow workflows to receive webhook calls from external systems. Required for many integrations."
+  type: boolean
+  default: true
+  group: "Advanced"
+
+- variable: n8n.webhooks.url
+  label: "Webhook URL"
+  type: string
+  description: "External URL where n8n webhooks can be reached. Set to your ingress or load balancer URL."
+  default: ""
+  show_if: "n8n.webhooks.enabled=true"
+  group: "Advanced"
+
+- variable: n8n.endpoints.rest
+  label: "Enable REST API"
+  description: "Enable n8n REST API for programmatic access. Useful for integrations and automation."
+  type: boolean
+  default: true
+  group: "Advanced"
+
+- variable: n8n.endpoints.metrics
+  label: "Enable Metrics Endpoint"
+  description: "Expose Prometheus metrics for monitoring n8n performance and health."
+  type: boolean
+  default: false
+  group: "Advanced"
+
+- variable: n8n.logs.level
+  label: "Log Level"
+  description: "Logging verbosity: 'error' (minimal), 'warn' (recommended), 'info' (detailed), 'debug' (verbose troubleshooting)."
+  type: enum
+  default: "info"
+  group: "Advanced"
+  options:
+    - "error"
+    - "warn"
+    - "info"
+    - "debug"
+
+- variable: n8n.logs.output
+  label: "Log Output Format"
+  description: "Log format: 'console' for human-readable logs, 'json' for structured logging and log aggregation."
+  type: enum
+  default: "console"
+  group: "Advanced"
+  options:
+    - "console"
+    - "json"
+
+- variable: n8n.userManagement.enabled
+  label: "Enable User Management"
+  description: "Allow multiple users with different permissions. Requires PostgreSQL database and additional setup."
+  type: boolean
+  default: false
+  show_if: "database.type=postgresql"
+  group: "Advanced"
+
+- variable: n8n.executions.process
+  label: "Execution Process"
+  description: "How to run workflow executions: 'main' (in main process, simple), 'own' (separate processes, better isolation)."
+  type: enum
+  default: "main"
+  group: "Advanced"
+  options:
+    - "main"
+    - "own"
+
+- variable: n8n.executions.timeout
+  label: "Execution Timeout (seconds)"
+  type: int
+  description: "Maximum time for workflow execution before timeout. Set based on your longest-running workflows."
+  default: 3600
+  group: "Advanced"
+
+- variable: n8n.executions.maxTimeout
+  label: "Max Execution Timeout (seconds)"
+  type: int
+  description: "Absolute maximum execution time limit. Prevents runaway workflows from consuming resources indefinitely."
+  default: 7200
+  group: "Advanced"
+
+- variable: n8n.queue.bull.enabled
+  label: "Enable Queue (Bull)"
+  description: "Use Redis-based queue for workflow execution. Required for scaling beyond single instance."
+  type: boolean
+  default: false
+  group: "Advanced"
+
+- variable: n8n.queue.bull.redis.host
+  label: "Redis Host"
+  type: string
+  description: "Hostname or IP address of Redis server for queue management."
+  default: ""
+  show_if: "n8n.queue.bull.enabled=true"
+  group: "Advanced"
+
+- variable: n8n.queue.bull.redis.port
+  label: "Redis Port"
+  type: int
+  description: "TCP port for Redis connection. Standard Redis port is 6379."
+  default: 6379
+  show_if: "n8n.queue.bull.enabled=true"
+  group: "Advanced"
+
+- variable: n8n.external.storage.type
+  label: "External Storage Type"
+  description: "Store large files externally: 'filesystem' (local/NFS), 's3' (AWS S3), 'gcs' (Google Cloud Storage)."
+  type: enum
+  default: "filesystem"
+  group: "Advanced"
+  options:
+    - "filesystem"
+    - "s3"
+    - "gcs"
+
+- variable: n8n.security.excludeNodes
+  label: "Exclude Dangerous Nodes"
+  type: string
+  description: "Comma-separated list of node types to disable for security (e.g., 'n8n-nodes-base.executeCommand,n8n-nodes-base.function')."
+  default: ""
+  group: "Advanced"
+
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Show advanced configuration options for n8n deployment, security, and performance tuning."
+  type: boolean
+  default: false
+  group: "Advanced"

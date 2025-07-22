@@ -1,0 +1,9 @@
+apiVersion: v2
+name: n8n
+description: n8n is a powerful workflow automation platform that allows you to connect anything to everything via its open, fair-code model. Build complex automations 10x faster with 400+ integrations and native AI capabilities.
+
+type: application
+
+version: 0.1.0
+
+appVersion: "1.19.4"
