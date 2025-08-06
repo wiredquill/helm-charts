@@ -1,0 +1,98 @@
+# questions.yaml for Rancher UI
+questions:
+- variable: models.pull
+  label: "Default Models"
+  description: "Comma-separated list of models to pull on startup (e.g., llama3,codellama,mistral)."
+  type: "string"
+  default: "llama3"
+  group: "Ollama Settings"
+  required: true
+
+- variable: service.type
+  label: "Service Type"
+  description: "Kubernetes service type to expose Ollama."
+  type: "enum"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+  default: "ClusterIP"
+  group: "Networking"
+  required: true
+
+- variable: service.port
+  label: "Service Port"
+  description: "The port for the Ollama service."
+  type: "int"
+  default: 11434
+  group: "Networking"
+  required: true
+
+- variable: ingress.enabled
+  label: "Enable Ingress"
+  description: "Expose the Ollama service via an Ingress controller."
+  type: "boolean"
+  default: false
+  group: "Networking"
+
+- variable: ingress.host
+  label: "Ingress Host"
+  description: "The hostname for the Ingress rule (e.g., ollama.example.com)."
+  type: "hostname"
+  show_if: "ingress.enabled=true"
+  group: "Networking"
+  required: true
+
+- variable: persistence.enabled
+  label: "Enable Persistence"
+  description: "Enable persistent storage for models to survive pod restarts."
+  type: "boolean"
+  default: true
+  group: "Storage"
+
+- variable: persistence.size
+  label: "Persistence Size"
+  description: "The size of the Persistent Volume Claim (PVC) for storing models."
+  type: "string"
+  default: "20Gi"
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+  required: true
+
+- variable: persistence.storageClassName
+  label: "Storage Class"
+  description: "The StorageClass to use for the PVC. Leave empty to use the default."
+  type: "storageclass"
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+- variable: advanced.enabled
+  label: "Show Advanced Ollama Options"
+  description: "Show additional environment variables to configure Ollama."
+  type: "boolean"
+  default: false
+  group: "Advanced Ollama Settings"
+
+- variable: ollama.keep_alive
+  label: "OLLAMA_KEEP_ALIVE"
+  description: "Controls how long a model stays loaded in memory. Default: 5m."
+  type: "string"
+  default: "5m"
+  show_if: "advanced.enabled=true"
+  group: "Advanced Ollama Settings"
+
+- variable: ollama.num_parallel
+  label: "OLLAMA_NUM_PARALLEL"
+  description: "The number of models that can be loaded in parallel."
+  type: "int"
+  default: 1
+  show_if: "advanced.enabled=true"
+  group: "Advanced Ollama Settings"
+
+- variable: ollama.max_loaded_models
+  label: "OLLAMA_MAX_LOADED_MODELS"
+  description: "The maximum number of models that can be loaded at once."
+  type: "int"
+  default: 1
+  show_if: "advanced.enabled=true"
+  group: "Advanced Ollama Settings"

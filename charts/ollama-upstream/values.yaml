@@ -1,0 +1,49 @@
+# values.yaml - Default configuration for the Ollama chart
+image:
+  repository: ollama/ollama
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Models to pull on startup
+models:
+  pull: "llama3"
+
+# Ollama specific environment variables
+ollama:
+  keep_alive: "5m"
+  num_parallel: 1
+  max_loaded_models: 1
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 11434
+
+# Ingress configuration
+ingress:
+  enabled: false
+  host: ""
+  # annotations: {}
+  # tls: []
+
+# Persistence configuration
+persistence:
+  enabled: true
+  size: "20Gi"
+  # storageClassName: "" # Use default if not specified
+  accessMode: ReadWriteOnce
+  mountPath: /root/.ollama
+
+# Pod resource requests and limits
+resources: {}
+  # requests:
+  #   cpu: "500m"
+  #   memory: "4Gi"
+  # limits:
+  #   cpu: "4"
+  #   memory: "16Gi"
+
+# Node selector and tolerations for scheduling
+nodeSelector: {}
+tolerations: []
+affinity: {}
