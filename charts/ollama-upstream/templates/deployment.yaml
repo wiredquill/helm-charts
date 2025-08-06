@@ -77,11 +77,17 @@ spec:
             - name: ollama-models
               mountPath: {{ .Values.persistence.mountPath }}
           resources:
-            {{- $res := .Values.resources -}}
+            {{- /* Create a deep copy of resources to avoid modifying the original context */}}
+            {{- $res := .Values.resources | deepCopy | default dict -}}
             {{- if and .Values.gpu.enabled (eq .Values.hardware.type "nvidia") -}}
+              {{- /* Define the GPU limit */}}
               {{- $gpuLimit := dict "nvidia.com/gpu" (.Values.gpu.count | toString) -}}
-              {{- $newLimits := merge $gpuLimit .Values.resources.limits -}}
-              {{- $res = mergeOverwrite (deepCopy .Values.resources) (dict "limits" $newLimits) -}}
+              {{- /* Safely get existing limits, or an empty map if they don't exist */}}
+              {{- $currentLimits := .Values.resources.limits | default dict -}}
+              {{- /* Merge the GPU limit with the existing limits */}}
+              {{- $newLimits := merge $gpuLimit $currentLimits -}}
+              {{- /* Set the merged limits back into our temporary resources object */}}
+              {{- $_ := set $res "limits" $newLimits -}}
             {{- end -}}
             {{- toYaml $res | nindent 12 }}
       nodeSelector:
