@@ -49,7 +49,7 @@ jobs:
           if [ -z "$CHARTS" ]; then
             echo "matrix={\"include\":[]}" >> $GITHUB_OUTPUT
           else
-            MATRIX_JSON=$(echo "$CHARTS" | tr ' ' '\n' | jq -R . | jq -s 'map(select(length > 0)) | map({"chart": .}) | {"include": .}')
+            MATRIX_JSON=$(echo "$CHARTS" | tr ' ' '\n' | jq -R . | jq -sc 'map(select(length > 0)) | map({"chart": .}) | {"include": .}')
             echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
           fi
 
