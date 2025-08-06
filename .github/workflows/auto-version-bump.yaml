@@ -16,7 +16,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          # fetch-depth: 0 is required to access the commit history
           fetch-depth: 0
+          # The GITHUB_TOKEN is required to push the commit back to the repository
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git
@@ -29,57 +31,57 @@ jobs:
 
       - name: Detect changed charts and bump versions
         run: |
-          # Get list of changed files since last commit
+          # Get list of changed files in the last commit
           CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
-          
+
           # Extract unique chart directories that have changes
           CHANGED_CHARTS=$(echo "$CHANGED_FILES" | grep '^charts/' | cut -d'/' -f1-2 | sort -u)
-          
+
+          if [ -z "$CHANGED_CHARTS" ]; then
+            echo "No changes in charts directory. Exiting."
+            exit 0
+          fi
+
           echo "Changed charts detected:"
           echo "$CHANGED_CHARTS"
-          
-          # Flag to track if any versions were bumped
+
           VERSION_BUMPED=false
-          
+
           # Process each changed chart
           for CHART_DIR in $CHANGED_CHARTS; do
             if [ -f "$CHART_DIR/Chart.yaml" ]; then
               echo "Processing chart: $CHART_DIR"
-              
-              # Get current version
+
+              # Get current version from Chart.yaml
               CURRENT_VERSION=$(yq eval '.version' "$CHART_DIR/Chart.yaml")
               echo "Current version: $CURRENT_VERSION"
-              
+
               # Split version into parts (assuming semantic versioning)
               IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
-              
+
               # Increment patch version
               NEW_PATCH=$((PATCH + 1))
               NEW_VERSION="$MAJOR.$MINOR.$NEW_PATCH"
-              
+
               echo "Bumping version from $CURRENT_VERSION to $NEW_VERSION"
-              
-              # Update Chart.yaml with new version
+
+              # Update Chart.yaml with the new version
               yq eval ".version = \"$NEW_VERSION\"" -i "$CHART_DIR/Chart.yaml"
-              
-              # Stage the file
+
+              # Stage the changed file
               git add "$CHART_DIR/Chart.yaml"
-              
+
               VERSION_BUMPED=true
             else
               echo "No Chart.yaml found in $CHART_DIR, skipping..."
             fi
           done
-          
+
           # Commit and push if any versions were bumped
           if [ "$VERSION_BUMPED" = true ]; then
             echo "Committing version bumps..."
-            git commit -m "🤖 Auto-bump chart versions
-
-🚀 Generated with [Claude Code](https://claude.ai/code)
-
-Co-Authored-By: Claude <noreply@anthropic.com>"
-            
+            # Use two -m flags for a clean subject and body in the commit message
+            git commit -m "🤖 Auto-bump chart versions" -m "Automated version bump triggered by changes in the charts directory."
             git push
             echo "Version bumps pushed successfully!"
           else
