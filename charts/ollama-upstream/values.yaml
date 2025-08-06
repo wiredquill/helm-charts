@@ -34,7 +34,17 @@ persistence:
   accessMode: ReadWriteOnce
   mountPath: /root/.ollama
 
+# Hardware and GPU configuration
+hardware:
+  type: "cpu" # Set to "nvidia" for GPU
+
+gpu:
+  enabled: false
+  count: 1
+  runtimeClassName: "nvidia"
+
 # Pod resource requests and limits
+# These will be merged with GPU limits if enabled
 resources: {}
   # requests:
   #   cpu: "500m"

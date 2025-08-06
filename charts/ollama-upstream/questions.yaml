@@ -66,6 +66,42 @@ questions:
   show_if: "persistence.enabled=true"
   group: "Storage"
 
+- variable: hardware.type
+  label: "Target Hardware"
+  description: "Select the target hardware. 'nvidia' for GPU acceleration, 'cpu' for general purpose."
+  type: "enum"
+  required: true
+  default: "cpu"
+  group: "Hardware"
+  options:
+    - "nvidia"
+    - "cpu"
+
+- variable: gpu.enabled
+  label: "Enable NVIDIA GPU"
+  description: "Use NVIDIA GPUs for acceleration. Requires the NVIDIA device plugin on the cluster."
+  type: "boolean"
+  default: false
+  show_if: "hardware.type=nvidia"
+  group: "Hardware"
+
+- variable: gpu.count
+  label: "GPU Count"
+  description: "Number of GPUs to request."
+  type: "int"
+  default: 1
+  min: 1
+  show_if: "gpu.enabled=true"
+  group: "Hardware"
+
+- variable: gpu.runtimeClassName
+  label: "Runtime Class Name"
+  description: "Specify the runtime class for GPU nodes (e.g., 'nvidia'). Leave empty if not needed."
+  type: "string"
+  default: "nvidia"
+  show_if: "gpu.enabled=true"
+  group: "Hardware"
+
 - variable: advanced.enabled
   label: "Show Advanced Ollama Options"
   description: "Show additional environment variables to configure Ollama."

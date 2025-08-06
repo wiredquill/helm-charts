@@ -17,6 +17,9 @@ spec:
         app: ollama
         release: {{ .Release.Name }}
     spec:
+      {{- if and .Values.gpu.enabled (eq .Values.hardware.type "nvidia") .Values.gpu.runtimeClassName }}
+      runtimeClassName: {{ .Values.gpu.runtimeClassName }}
+      {{- end }}
       {{- if .Values.persistence.enabled }}
       volumes:
         - name: ollama-models
@@ -74,7 +77,13 @@ spec:
             - name: ollama-models
               mountPath: {{ .Values.persistence.mountPath }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- $res := .Values.resources -}}
+            {{- if and .Values.gpu.enabled (eq .Values.hardware.type "nvidia") -}}
+              {{- $gpuLimit := dict "nvidia.com/gpu" (.Values.gpu.count | toString) -}}
+              {{- $newLimits := merge $gpuLimit .Values.resources.limits -}}
+              {{- $res = mergeOverwrite (deepCopy .Values.resources) (dict "limits" $newLimits) -}}
+            {{- end -}}
+            {{- toYaml $res | nindent 12 }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
       affinity:
