@@ -3,6 +3,16 @@ entries:
   genai-observability-demo:
   - apiVersion: v2
     appVersion: 0.0.6
+    created: "2025-09-08T14:06:45.594672414Z"
+    description: A Helm chart for Kubernetes
+    digest: c2a25202402668791e9620d371d3ca484dc3148123931bec3a41d36be3529a4c
+    name: genai-observability-demo
+    type: application
+    urls:
+    - genai-observability-demo-0.1.7.tgz
+    version: 0.1.7
+  - apiVersion: v2
+    appVersion: 0.0.6
     created: "2025-07-17T15:23:48.614732622Z"
     description: A Helm chart for Kubernetes
     digest: e6d670a6df3ab7cf2a37cbe38d1b46ebc9a7aaa7d430c21600224de80b1fd0bb
@@ -100,4 +110,4 @@ entries:
     urls:
     - ollama-upstream-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-06T21:02:08.956318885Z"
+generated: "2025-09-08T14:06:45.594699745Z"
