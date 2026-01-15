@@ -4,6 +4,6 @@ description: n8n is a powerful workflow automation platform that allows you to c
 
 type: application
 
-version: 0.1.0
+version: 0.1.1
 
 appVersion: "1.19.4"

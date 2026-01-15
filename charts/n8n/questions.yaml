@@ -62,6 +62,14 @@ questions:
   default: 5678
   group: General
 
+- variable: service.loadBalancerIP
+  label: "Load Balancer IP"
+  type: string
+  description: "Static IP address for the LoadBalancer service. Leave empty to let the cloud provider assign one automatically."
+  default: ""
+  show_if: "service.type=LoadBalancer"
+  group: General
+
 # Database Configuration
 - variable: database.type
   label: "Database Type"

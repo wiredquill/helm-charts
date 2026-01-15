@@ -10,6 +10,7 @@ imagePullSecrets: "application-collection"
 service:
   type: LoadBalancer
   port: 5678
+  loadBalancerIP: ""
 
 # Database Configuration
 database:

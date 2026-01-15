@@ -104,4 +104,10 @@ spec:
               mountPath: /home/node/.n8n
             {{- end }}
           resources:
-            {{- toYaml .Values.resources | n
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "n8n.fullname" . }}
+        {{- end }}
