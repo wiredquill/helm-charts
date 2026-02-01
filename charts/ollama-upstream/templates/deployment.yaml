@@ -69,6 +69,8 @@ spec:
               value: {{ .Values.ollama.num_parallel | quote }}
             - name: OLLAMA_MAX_LOADED_MODELS
               value: {{ .Values.ollama.max_loaded_models | quote }}
+            - name: OLLAMA_CONTEXT_LENGTH
+              value: {{ .Values.ollama.context_length | quote }}
           ports:
             - name: http
               containerPort: 11434
