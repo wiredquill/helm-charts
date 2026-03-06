@@ -1,7 +1,7 @@
 # values.yaml - Default configuration for the Ollama chart
 image:
   repository: ollama/ollama
-  tag: latest
+  tag: "0.17.7"
   pullPolicy: IfNotPresent
 
 # Models to pull on startup
@@ -19,6 +19,7 @@ ollama:
 service:
   type: ClusterIP
   port: 11434
+  loadBalancerIP: ""
 
 # Ingress configuration
 ingress:
@@ -31,16 +32,16 @@ ingress:
 persistence:
   enabled: true
   size: "20Gi"
-  # storageClassName: "" # Use default if not specified
+  storageClassName: ""
   accessMode: ReadWriteOnce
   mountPath: /root/.ollama
 
 # Hardware and GPU configuration
 hardware:
-  type: "cpu" # Set to "nvidia" for GPU
+  type: "nvidia"
 
 gpu:
-  enabled: false
+  enabled: true
   count: 1
   runtimeClassName: "nvidia"
 

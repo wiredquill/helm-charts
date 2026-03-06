@@ -20,6 +20,14 @@ questions:
   group: "Networking"
   required: true
 
+- variable: service.loadBalancerIP
+  label: "Load Balancer IP"
+  description: "Static IP address to assign to the LoadBalancer. Leave empty for automatic assignment."
+  type: "string"
+  default: ""
+  show_if: "service.type=LoadBalancer"
+  group: "Networking"
+
 - variable: service.port
   label: "Service Port"
   description: "The port for the Ollama service."
@@ -61,8 +69,9 @@ questions:
 
 - variable: persistence.storageClassName
   label: "Storage Class"
-  description: "The StorageClass to use for the PVC. Leave empty to use the default."
+  description: "The StorageClass to use for the PVC. Leave empty to use the cluster default."
   type: "storageclass"
+  default: ""
   show_if: "persistence.enabled=true"
   group: "Storage"
 
@@ -71,7 +80,7 @@ questions:
   description: "Select the target hardware. 'nvidia' for GPU acceleration, 'cpu' for general purpose."
   type: "enum"
   required: true
-  default: "cpu"
+  default: "nvidia"
   group: "Hardware"
   options:
     - "nvidia"
@@ -81,7 +90,7 @@ questions:
   label: "Enable NVIDIA GPU"
   description: "Use NVIDIA GPUs for acceleration. Requires the NVIDIA device plugin on the cluster."
   type: "boolean"
-  default: false
+  default: true
   show_if: "hardware.type=nvidia"
   group: "Hardware"
 
@@ -102,33 +111,30 @@ questions:
   show_if: "gpu.enabled=true"
   group: "Hardware"
 
-- variable: advanced.enabled
-  label: "Show Advanced Ollama Options"
-  description: "Show additional environment variables to configure Ollama."
-  type: "boolean"
-  default: false
-  group: "Advanced Ollama Settings"
-
 - variable: ollama.keep_alive
   label: "OLLAMA_KEEP_ALIVE"
   description: "Controls how long a model stays loaded in memory. Default: 5m."
   type: "string"
   default: "5m"
-  show_if: "advanced.enabled=true"
-  group: "Advanced Ollama Settings"
+  group: "Advanced"
 
 - variable: ollama.num_parallel
   label: "OLLAMA_NUM_PARALLEL"
   description: "The number of models that can be loaded in parallel."
   type: "int"
   default: 1
-  show_if: "advanced.enabled=true"
-  group: "Advanced Ollama Settings"
+  group: "Advanced"
 
 - variable: ollama.max_loaded_models
   label: "OLLAMA_MAX_LOADED_MODELS"
   description: "The maximum number of models that can be loaded at once."
   type: "int"
   default: 1
-  show_if: "advanced.enabled=true"
-  group: "Advanced Ollama Settings"
+  group: "Advanced"
+
+- variable: ollama.context_length
+  label: "OLLAMA_CONTEXT_LENGTH"
+  description: "The context length to use for model inference."
+  type: "int"
+  default: 65536
+  group: "Advanced"
