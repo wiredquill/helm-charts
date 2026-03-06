@@ -20,16 +20,18 @@ spec:
       {{- if and .Values.gpu.enabled (eq .Values.hardware.type "nvidia") .Values.gpu.runtimeClassName }}
       runtimeClassName: {{ .Values.gpu.runtimeClassName }}
       {{- end }}
-      {{- if .Values.persistence.enabled }}
       volumes:
         - name: ollama-models
+          {{- if .Values.nfs.enabled }}
+          nfs:
+            server: {{ .Values.nfs.server }}
+            path: {{ .Values.nfs.path }}
+          {{- else if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ .Release.Name }}-ollama-pvc
-      {{- else }}
-      volumes:
-        - name: ollama-models
+          {{- else }}
           emptyDir: {}
-      {{- end }}
+          {{- end }}
       initContainers:
         - name: pull-models
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

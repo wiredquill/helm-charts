@@ -55,6 +55,12 @@ resources: {}
   #   cpu: "4"
   #   memory: "16Gi"
 
+# NFS storage configuration (takes priority over PVC when enabled)
+nfs:
+  enabled: false
+  server: "10.9.0.250"
+  path: "/data/ollama"
+
 # Node selector and tolerations for scheduling
 nodeSelector: {}
 tolerations: []

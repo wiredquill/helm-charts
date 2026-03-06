@@ -75,6 +75,31 @@ questions:
   show_if: "persistence.enabled=true"
   group: "Storage"
 
+- variable: nfs.enabled
+  label: "Use NFS Storage"
+  description: "Mount an NFS share for model storage. When enabled, NFS takes priority over PVC."
+  type: "boolean"
+  default: false
+  group: "NFS Storage"
+
+- variable: nfs.server
+  label: "NFS Server"
+  description: "IP address or hostname of the NFS server."
+  type: "string"
+  default: "10.9.0.250"
+  show_if: "nfs.enabled=true"
+  group: "NFS Storage"
+  required: true
+
+- variable: nfs.path
+  label: "NFS Export Path"
+  description: "The exported path on the NFS server to mount for model storage."
+  type: "string"
+  default: "/data/ollama"
+  show_if: "nfs.enabled=true"
+  group: "NFS Storage"
+  required: true
+
 - variable: hardware.type
   label: "Target Hardware"
   description: "Select the target hardware. 'nvidia' for GPU acceleration, 'cpu' for general purpose."
