@@ -90,6 +90,8 @@ jobs:
     needs: [detect-changes, lint-and-test]
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.charts != '' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     strategy:
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
     steps:
