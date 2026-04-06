@@ -85,6 +85,18 @@ entries:
   n8n:
   - apiVersion: v2
     appVersion: 1.123.28
+    created: "2026-04-06T23:27:35.64733844Z"
+    description: n8n is a powerful workflow automation platform that allows you to
+      connect anything to everything via its open, fair-code model. Build complex
+      automations 10x faster with 400+ integrations and native AI capabilities.
+    digest: 6ff2811a21bc2904f0f86659d225b8d854bafcec66a9ba90aefa91add25771ed
+    name: n8n
+    type: application
+    urls:
+    - n8n-0.1.6.tgz
+    version: 0.1.6
+  - apiVersion: v2
+    appVersion: 1.123.28
     created: "2026-04-06T23:20:34.539831736Z"
     description: n8n is a powerful workflow automation platform that allows you to
       connect anything to everything via its open, fair-code model. Build complex
@@ -252,4 +264,4 @@ entries:
     urls:
     - ollama-upstream-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-06T23:20:34.539879066Z"
+generated: "2026-04-06T23:27:35.647393763Z"
