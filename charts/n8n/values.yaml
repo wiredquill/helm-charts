@@ -39,37 +39,37 @@ resources:
 # n8n Configuration
 n8n:
   timezone: "UTC"
-  
+
   # Basic Authentication
   basicAuth:
     enabled: false
     username: "admin"
     password: ""
-  
+
   # Data Encryption
   encryption:
     enabled: true
     key: ""
-  
+
   # Webhooks
   webhooks:
     enabled: true
     url: ""
-  
+
   # API Endpoints
   endpoints:
     rest: true
     metrics: false
-  
+
   # Logging
   logs:
     level: "info"
     output: "console"
-  
+
   # User Management
   userManagement:
     enabled: false
-  
+
   # Workflow Execution
   executions:
     process: ""
@@ -79,7 +79,7 @@ n8n:
   # Database tuning
   database:
     sqlitePoolSize: 4
-  
+
   # Queue Configuration
   queue:
     bull:
@@ -87,12 +87,12 @@ n8n:
       redis:
         host: ""
         port: 6379
-  
+
   # External Storage
   external:
     storage:
       type: "filesystem"
-  
+
   # Security
   security:
     excludeNodes: ""
