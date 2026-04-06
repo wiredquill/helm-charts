@@ -82,12 +82,22 @@ spec:
             - name: N8N_USER_MANAGEMENT_DISABLED
               value: "true"
             {{- end }}
-            - name: EXECUTIONS_PROCESS
-              value: {{ .Values.n8n.executions.process | quote }}
+            - name: N8N_RUNNERS_ENABLED
+              value: "true"
+            - name: DB_SQLITE_POOL_SIZE
+              value: {{ .Values.n8n.database.sqlitePoolSize | quote }}
+            - name: N8N_BLOCK_ENV_ACCESS_IN_NODE
+              value: {{ .Values.n8n.security.blockEnvAccess | quote }}
+            - name: N8N_GIT_NODE_DISABLE_BARE_REPOS
+              value: "true"
             - name: EXECUTIONS_TIMEOUT
               value: {{ .Values.n8n.executions.timeout | quote }}
             - name: EXECUTIONS_TIMEOUT_MAX
               value: {{ .Values.n8n.executions.maxTimeout | quote }}
+            {{- if .Values.n8n.executions.process }}
+            - name: EXECUTIONS_PROCESS
+              value: {{ .Values.n8n.executions.process | quote }}
+            {{- end }}
             {{- if .Values.n8n.queue.bull.enabled }}
             - name: QUEUE_BULL_REDIS_HOST
               value: {{ .Values.n8n.queue.bull.redis.host | quote }}

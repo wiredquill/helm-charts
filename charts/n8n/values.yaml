@@ -72,9 +72,13 @@ n8n:
   
   # Workflow Execution
   executions:
-    process: "main"
+    process: ""
     timeout: 3600
     maxTimeout: 7200
+
+  # Database tuning
+  database:
+    sqlitePoolSize: 4
   
   # Queue Configuration
   queue:
@@ -92,6 +96,7 @@ n8n:
   # Security
   security:
     excludeNodes: ""
+    blockEnvAccess: "false"
 
 # Advanced configuration
 showAdvanced: false
