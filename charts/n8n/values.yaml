@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: docker.n8n.io/n8nio/n8n
-  tag: "1.19.4"
+  tag: "1.123.28"
   pullPolicy: IfNotPresent
 
 imagePullSecrets: "application-collection"
