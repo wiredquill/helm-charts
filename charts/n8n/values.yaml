@@ -27,6 +27,12 @@ persistence:
   size: 10Gi
   storageClassName: "local-path"
 
+# NFS storage configuration (takes priority over PVC when enabled)
+nfs:
+  enabled: false
+  server: "wq-nfs.wiredquill.com"
+  path: "/data/n8n"
+
 # Resource Configuration
 resources:
   requests:

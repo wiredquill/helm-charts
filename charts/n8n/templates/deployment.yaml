@@ -109,15 +109,21 @@ spec:
               value: {{ .Values.n8n.security.excludeNodes | quote }}
             {{- end }}
           volumeMounts:
-            {{- if .Values.persistence.enabled }}
+            {{- if or .Values.nfs.enabled .Values.persistence.enabled }}
             - name: data
               mountPath: /home/node/.n8n
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
-        {{- if .Values.persistence.enabled }}
         - name: data
+          {{- if .Values.nfs.enabled }}
+          nfs:
+            server: {{ .Values.nfs.server }}
+            path: {{ .Values.nfs.path }}
+          {{- else if .Values.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ include "n8n.fullname" . }}
-        {{- end }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}

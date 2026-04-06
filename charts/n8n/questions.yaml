@@ -352,3 +352,29 @@ questions:
   type: boolean
   default: false
   group: "Advanced"
+
+# NFS Storage Configuration
+- variable: nfs.enabled
+  label: "Use NFS Storage"
+  description: "Mount an NFS share for n8n data storage. When enabled, NFS takes priority over PVC."
+  type: boolean
+  default: false
+  group: "NFS Storage"
+
+- variable: nfs.server
+  label: "NFS Server"
+  description: "Hostname or IP address of the NFS server."
+  type: string
+  default: "wq-nfs.wiredquill.com"
+  show_if: "nfs.enabled=true"
+  required: true
+  group: "NFS Storage"
+
+- variable: nfs.path
+  label: "NFS Export Path"
+  description: "The exported path on the NFS server to mount for n8n data storage."
+  type: string
+  default: "/data/n8n"
+  show_if: "nfs.enabled=true"
+  required: true
+  group: "NFS Storage"
