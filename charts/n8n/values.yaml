@@ -103,6 +103,7 @@ n8n:
   security:
     excludeNodes: ""
     blockEnvAccess: "false"
+    secureCookie: "false"
 
 # Advanced configuration
 showAdvanced: false

@@ -339,6 +339,16 @@ questions:
     - "s3"
     - "gcs"
 
+- variable: n8n.security.secureCookie
+  label: "Require Secure Cookie (HTTPS)"
+  description: "Enforce secure cookies, requiring HTTPS access. Set to false when running without TLS (not recommended for production)."
+  type: enum
+  default: "false"
+  group: "Advanced"
+  options:
+    - "true"
+    - "false"
+
 - variable: n8n.security.excludeNodes
   label: "Exclude Dangerous Nodes"
   type: string
