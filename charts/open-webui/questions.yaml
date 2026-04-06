@@ -1,0 +1,251 @@
+questions:
+# General Configuration
+- variable: replicaCount
+  label: "Replica Count"
+  type: int
+  description: "Number of Open WebUI pods to run."
+  required: true
+  default: 1
+  group: "General"
+
+- variable: image.repository
+  label: "Image Repository"
+  type: string
+  description: "Container image for Open WebUI."
+  default: "ghcr.io/open-webui/open-webui"
+  group: "General"
+
+- variable: image.tag
+  label: "Image Tag"
+  type: string
+  description: "Open WebUI version to deploy."
+  required: true
+  default: "0.8.12"
+  group: "General"
+
+- variable: image.pullPolicy
+  label: "Image Pull Policy"
+  type: enum
+  description: "When to pull the container image."
+  default: "IfNotPresent"
+  group: "General"
+  options:
+    - "IfNotPresent"
+    - "Always"
+    - "Never"
+
+- variable: imagePullSecrets
+  label: "Image Pull Secret"
+  type: string
+  description: "Kubernetes secret for pulling images from a private registry."
+  default: "application-collection"
+  group: "General"
+
+# Service Configuration
+- variable: service.type
+  label: "Service Type"
+  description: "How to expose the Open WebUI interface: 'ClusterIP' (internal), 'NodePort' (node IP:port), 'LoadBalancer' (external IP)."
+  type: enum
+  required: true
+  default: "LoadBalancer"
+  group: "Networking"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+
+- variable: service.port
+  label: "Service Port"
+  type: int
+  description: "TCP port for the Open WebUI interface."
+  required: true
+  default: 8080
+  group: "Networking"
+
+- variable: service.loadBalancerIP
+  label: "Load Balancer IP"
+  type: string
+  description: "Static IP for the LoadBalancer. Leave empty for automatic assignment."
+  default: ""
+  show_if: "service.type=LoadBalancer"
+  group: "Networking"
+
+- variable: ingress.enabled
+  label: "Enable Ingress"
+  description: "Expose Open WebUI via an Ingress controller."
+  type: boolean
+  default: false
+  group: "Networking"
+
+- variable: ingress.host
+  label: "Ingress Hostname"
+  type: hostname
+  description: "Hostname for the Ingress rule (e.g., open-webui.example.com)."
+  show_if: "ingress.enabled=true"
+  required: true
+  group: "Networking"
+
+# Ollama Backend
+- variable: ollama.enabled
+  label: "Connect to Ollama"
+  description: "Enable connection to an Ollama backend for local LLM inference."
+  type: boolean
+  default: true
+  group: "Backends"
+
+- variable: ollama.baseUrl
+  label: "Ollama Base URL"
+  type: string
+  description: "URL of the Ollama API endpoint (e.g., http://ollama-svc:11434)."
+  default: "http://localhost:11434"
+  show_if: "ollama.enabled=true"
+  required: true
+  group: "Backends"
+
+- variable: openai.enabled
+  label: "Connect to OpenAI-compatible API"
+  description: "Enable connection to an OpenAI-compatible API (OpenAI, vLLM, LocalAI, etc.)."
+  type: boolean
+  default: false
+  group: "Backends"
+
+- variable: openai.baseUrl
+  label: "OpenAI API Base URL"
+  type: string
+  description: "Base URL for the OpenAI-compatible API."
+  default: "https://api.openai.com/v1"
+  show_if: "openai.enabled=true"
+  group: "Backends"
+
+- variable: openai.apiKey
+  label: "OpenAI API Key"
+  type: password
+  description: "API key for authenticating with the OpenAI-compatible API."
+  default: ""
+  show_if: "openai.enabled=true"
+  group: "Backends"
+
+# Storage Configuration
+- variable: persistence.enabled
+  label: "Enable Persistence"
+  description: "Persist Open WebUI data (users, chats, settings) across pod restarts."
+  type: boolean
+  default: true
+  group: "Storage"
+
+- variable: persistence.size
+  label: "Storage Size"
+  description: "Amount of persistent storage for Open WebUI data."
+  type: string
+  default: "10Gi"
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+- variable: persistence.storageClassName
+  label: "Storage Class"
+  description: "Kubernetes storage class to use. Leave empty for cluster default."
+  type: storageclass
+  default: "local-path"
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+# NFS Storage Configuration
+- variable: nfs.enabled
+  label: "Use NFS Storage"
+  description: "Mount an NFS share for Open WebUI data. When enabled, NFS takes priority over PVC."
+  type: boolean
+  default: false
+  group: "NFS Storage"
+
+- variable: nfs.server
+  label: "NFS Server"
+  description: "Hostname or IP address of the NFS server."
+  type: string
+  default: "wq-nfs.wiredquill.com"
+  show_if: "nfs.enabled=true"
+  required: true
+  group: "NFS Storage"
+
+- variable: nfs.path
+  label: "NFS Export Path"
+  description: "The exported path on the NFS server to mount for Open WebUI data."
+  type: string
+  default: "/data/open-webui"
+  show_if: "nfs.enabled=true"
+  required: true
+  group: "NFS Storage"
+
+# Authentication
+- variable: auth.enabled
+  label: "Enable Authentication"
+  description: "Require login to access Open WebUI. Disable only for trusted internal networks."
+  type: boolean
+  default: true
+  group: "Auth"
+
+- variable: auth.signupEnabled
+  label: "Allow User Signup"
+  description: "Allow new users to register accounts."
+  type: boolean
+  default: true
+  show_if: "auth.enabled=true"
+  group: "Auth"
+
+- variable: auth.defaultRole
+  label: "Default User Role"
+  description: "Role assigned to new users on signup."
+  type: enum
+  default: "user"
+  show_if: "auth.enabled=true"
+  group: "Auth"
+  options:
+    - "user"
+    - "admin"
+    - "pending"
+
+# Resource Configuration
+- variable: resources.requests.cpu
+  label: "CPU Request"
+  type: string
+  description: "Guaranteed CPU allocation for Open WebUI."
+  default: "250m"
+  group: "Resources"
+
+- variable: resources.requests.memory
+  label: "Memory Request"
+  type: string
+  description: "Guaranteed RAM for Open WebUI."
+  default: "512Mi"
+  group: "Resources"
+
+- variable: resources.limits.cpu
+  label: "CPU Limit"
+  type: string
+  description: "Maximum CPU Open WebUI can use."
+  default: "2"
+  group: "Resources"
+
+- variable: resources.limits.memory
+  label: "Memory Limit"
+  type: string
+  description: "Maximum RAM before container restart."
+  default: "2Gi"
+  group: "Resources"
+
+# Advanced / Security
+- variable: security.secureCookie
+  label: "Require Secure Cookie (HTTPS)"
+  description: "Enforce secure cookies, requiring HTTPS. Set to false when running without TLS."
+  type: enum
+  default: "false"
+  group: "Advanced"
+  options:
+    - "true"
+    - "false"
+
+- variable: security.secretKey
+  label: "Session Secret Key"
+  type: password
+  description: "Secret key for signing session tokens. Set a strong random value for production."
+  default: ""
+  group: "Advanced"

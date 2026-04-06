@@ -1,0 +1,66 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/open-webui/open-webui
+  tag: "0.8.12"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: "application-collection"
+
+# Service configuration
+service:
+  type: LoadBalancer
+  port: 8080
+  loadBalancerIP: ""
+
+# Ingress configuration
+ingress:
+  enabled: false
+  host: ""
+  annotations: {}
+  tls: []
+
+# Storage Configuration
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClassName: "local-path"
+  accessMode: ReadWriteOnce
+  mountPath: /app/backend/data
+
+# NFS storage configuration (takes priority over PVC when enabled)
+nfs:
+  enabled: false
+  server: "wq-nfs.wiredquill.com"
+  path: "/data/open-webui"
+
+# Ollama backend connection
+ollama:
+  enabled: true
+  baseUrl: "http://localhost:11434"
+
+# OpenAI-compatible API
+openai:
+  enabled: false
+  apiKey: ""
+  baseUrl: "https://api.openai.com/v1"
+
+# Security
+security:
+  secureCookie: "false"
+  secretKey: ""
+
+# User management
+auth:
+  enabled: true
+  signupEnabled: true
+  defaultRole: "user"
+
+# Resource Configuration
+resources:
+  requests:
+    cpu: "250m"
+    memory: "512Mi"
+  limits:
+    cpu: "2"
+    memory: "2Gi"

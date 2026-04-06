@@ -86,7 +86,7 @@ questions:
   label: "NFS Server"
   description: "IP address or hostname of the NFS server."
   type: "string"
-  default: "10.9.0.250"
+  default: "wq-nfs.wiredquill.com"
   show_if: "nfs.enabled=true"
   group: "NFS Storage"
   required: true
@@ -95,7 +95,7 @@ questions:
   label: "NFS Export Path"
   description: "The exported path on the NFS server to mount for model storage."
   type: "string"
-  default: "/data/ollama"
+  default: "/data/ai-models/ollama"
   show_if: "nfs.enabled=true"
   group: "NFS Storage"
   required: true

@@ -1,7 +1,7 @@
 # values.yaml - Default configuration for the Ollama chart
 image:
   repository: ollama/ollama
-  tag: "0.17.7"
+  tag: "0.20.2"
   pullPolicy: IfNotPresent
 
 # Models to pull on startup
@@ -58,8 +58,8 @@ resources: {}
 # NFS storage configuration (takes priority over PVC when enabled)
 nfs:
   enabled: false
-  server: "10.9.0.250"
-  path: "/data/ollama"
+  server: "wq-nfs.wiredquill.com"
+  path: "/data/ai-models/ollama"
 
 # Node selector and tolerations for scheduling
 nodeSelector: {}

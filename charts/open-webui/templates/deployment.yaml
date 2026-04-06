@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-open-webui
+  labels:
+    app: open-webui
+    release: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: open-webui
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: open-webui
+        release: {{ .Release.Name }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecrets }}
+      {{- end }}
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+      containers:
+        - name: open-webui
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "8080"
+            {{- if .Values.ollama.enabled }}
+            - name: OLLAMA_BASE_URL
+              value: {{ .Values.ollama.baseUrl | quote }}
+            {{- else }}
+            - name: OLLAMA_BASE_URL
+              value: ""
+            {{- end }}
+            {{- if .Values.openai.enabled }}
+            - name: OPENAI_API_BASE_URL
+              value: {{ .Values.openai.baseUrl | quote }}
+            - name: OPENAI_API_KEY
+              value: {{ .Values.openai.apiKey | quote }}
+            {{- end }}
+            - name: WEBUI_SECRET_KEY
+              value: {{ .Values.security.secretKey | quote }}
+            - name: WEBUI_SESSION_COOKIE_SECURE
+              value: {{ .Values.security.secureCookie | quote }}
+            - name: ENABLE_SIGNUP
+              value: {{ .Values.auth.signupEnabled | quote }}
+            {{- if not .Values.auth.enabled }}
+            - name: WEBUI_AUTH
+              value: "false"
+            {{- end }}
+            - name: DEFAULT_USER_ROLE
+              value: {{ .Values.auth.defaultRole | quote }}
+            - name: DATA_DIR
+              value: {{ .Values.persistence.mountPath | quote }}
+          volumeMounts:
+            {{- if or .Values.nfs.enabled .Values.persistence.enabled }}
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: data
+          {{- if .Values.nfs.enabled }}
+          nfs:
+            server: {{ .Values.nfs.server }}
+            path: {{ .Values.nfs.path }}
+          {{- else if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-open-webui-pvc
+          {{- else }}
+          emptyDir: {}
+          {{- end }}

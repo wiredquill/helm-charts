@@ -1,0 +1,6 @@
+apiVersion: v2
+name: open-webui
+description: Open WebUI is an extensible, self-hosted AI interface that supports Ollama and OpenAI-compatible APIs, with built-in RAG, web search, and multi-user management.
+type: application
+version: 0.1.0
+appVersion: "0.8.12"
