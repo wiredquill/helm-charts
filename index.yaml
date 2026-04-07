@@ -169,6 +169,18 @@ entries:
     version: 0.1.0
   ollama-upstream:
   - apiVersion: v2
+    appVersion: 0.20.2
+    created: "2026-04-07T14:11:27.306798469Z"
+    description: Ollama is a tool for running large language models locally. It provides
+      a simple API for creating, running, and managing models, and supports a library
+      of pre-built models that can be easily used in a variety of applications.
+    digest: 9d1eaed9f295897ed007d2e1350047e1f8412476a4910cf2ebf2f842314c9c8c
+    name: ollama-upstream
+    type: application
+    urls:
+    - ollama-upstream-0.1.9.tgz
+    version: 0.1.9
+  - apiVersion: v2
     appVersion: 0.17.7
     created: "2026-03-06T19:53:03.640356384Z"
     description: Ollama is a tool for running large language models locally. It provides
@@ -264,4 +276,4 @@ entries:
     urls:
     - ollama-upstream-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-06T23:27:35.647393763Z"
+generated: "2026-04-07T14:11:27.306865034Z"
