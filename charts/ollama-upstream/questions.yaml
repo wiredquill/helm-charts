@@ -1,5 +1,13 @@
 # questions.yaml for Rancher UI
 questions:
+- variable: image.tag
+  label: "Ollama Version"
+  description: "Ollama image tag to deploy (e.g., 0.20.2)."
+  type: string
+  required: true
+  default: "0.20.2"
+  group: "Ollama Settings"
+
 - variable: models.pull
   label: "Default Models"
   description: "Comma-separated list of models to pull on startup (e.g., llama3,codellama,mistral)."
