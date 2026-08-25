@@ -57,7 +57,7 @@ ollama:
   persistence:
     enabled: true
     size: "100Gi"
-    storageClassName: "" # Use default if empty
+    storageClassName: ""  # Use default if empty
     # -- PVC access mode. ReadWriteOnce (block path) is the safe default on
     # single-node Harvester; ReadWriteMany requires the NetworkFS path which
     # needs a routable share-manager endpoint from the guest cluster.
@@ -68,7 +68,7 @@ ollama:
     nfs:
       # -- NFS-based model cache: pre-warm Ollama models from a shared NFS share
       enabled: false
-      server: "" # e.g. 10.0.9.10
+      server: ""  # e.g. 10.0.9.10
       path: "/data/ai-models"
 
 litellm:

@@ -1,0 +1,33 @@
+# Values for the ollama-webui-upstream wrapper chart.
+# All values are passed through to the bundled `ollama` and `open-webui`
+# subcharts via standard Helm dependency scoping (open-webui.* / ollama.*).
+
+# --- Open WebUI (subchart: open-webui) ---
+open-webui:
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 8080
+  ollama:
+    enabled: true
+    baseUrl: "http://ollama:11434"
+  persistence:
+    enabled: true
+    size: "10Gi"
+  resources: {}
+
+# --- Ollama (subchart: ollama) ---
+ollama:
+  image:
+    repository: ollama/ollama
+    tag: ""
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 11434
+  gpu:
+    enabled: false
+  persistence:
+    enabled: true
+    size: "20Gi"
+  resources: {}
