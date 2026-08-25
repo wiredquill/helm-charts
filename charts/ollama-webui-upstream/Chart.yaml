@@ -2,9 +2,8 @@ apiVersion: v2
 name: ollama-webui-upstream
 description: Integrated Ollama + Open WebUI wrapper chart with custom questions.yaml
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "1.0"
-
 dependencies:
   - name: ollama
     version: "^1.32.0"
@@ -12,11 +11,9 @@ dependencies:
   - name: open-webui
     version: "^8.12.2"
     repository: "https://helm.openwebui.com/"
-
 maintainers:
   - name: AI Demos Team
     email: ai-demos@example.com
-
 keywords:
   - ollama
   - open-webui
@@ -25,7 +22,6 @@ keywords:
   - machine-learning
   - chatgpt-ui
   - upstream
-
 annotations:
   category: MachineLearning
   description: "Complete AI chat platform with Ollama backend and Open WebUI frontend"
