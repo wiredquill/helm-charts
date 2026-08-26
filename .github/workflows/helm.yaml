@@ -8,6 +8,7 @@ on:
     workflows: ["Auto Version Bump Charts"]
     types:
       - completed
+  workflow_dispatch:
 
 concurrency:
   group: helm-charts-release
