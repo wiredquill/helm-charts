@@ -1,0 +1,26 @@
+apiVersion: v0
+kind: ImagesLock
+metadata:
+  generatedAt: "2026-08-24T17:06:50.442535719Z"
+  generatedBy: SUSE LLC
+chart:
+  name: ollama
+  version: 1.76.0
+  appVersion: 0.32.14
+images:
+  - name: bci-busybox
+    image: dp.apps.rancher.io/containers/bci-busybox:15.7-25.5
+    chart: ollama
+    digests:
+      - digest: sha256:8e04dd9044a94c572411fb63f405f3c2a597ab2a03bdc7cec8b4fa7375f57f16
+        arch: linux/amd64
+      - digest: sha256:c2a77f4b4d32c2247a21ea81e6697e032ff7d3e70954cd6ba05448fbb875d4ab
+        arch: linux/arm64
+  - name: ollama
+    image: dp.apps.rancher.io/containers/ollama:0.32.14-11.78
+    chart: ollama
+    digests:
+      - digest: sha256:eba9b8b338cd60bd3880881c2242d5c04988c681687168952e2b222fc7a66131
+        arch: linux/amd64
+      - digest: sha256:0edb6691843b7a5f709a84564136f6c19ce1507a9d9ace7349972f974fcaeb4f
+        arch: linux/arm64

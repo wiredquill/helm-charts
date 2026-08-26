@@ -6,8 +6,8 @@ version: 0.1.12
 appVersion: "0.21.2"
 dependencies:
   - name: ollama
-    version: "^1.0.0"
-    repository: "oci://dp.apps.rancher.io/charts"
+    version: "1.76.0"
+    repository: "file://charts/ollama"
 maintainers:
   - name: AI Demos Team
     email: ai-demos@example.com

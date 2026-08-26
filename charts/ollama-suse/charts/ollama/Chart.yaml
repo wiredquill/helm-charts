@@ -1,0 +1,27 @@
+annotations:
+  helm.sh/images: |
+    - image: dp.apps.rancher.io/containers/ollama:0.32.14-11.78
+      name: ollama
+    - image: dp.apps.rancher.io/containers/bci-busybox:15.7-25.5
+      name: bci-busybox
+  license: MIT
+apiVersion: v2
+appVersion: 0.32.14
+description: Get up and running with Llama 3.2, Mistral, Gemma 2, and other large
+  language models.
+home: https://apps.rancher.io/applications/ollama
+icon: https://apps.rancher.io/logos/ollama.png
+keywords:
+- ai
+- llm
+- llama
+- mistral
+kubeVersion: ^1.16.0-0
+maintainers:
+- name: SUSE LLC
+  url: https://www.suse.com
+name: ollama
+sources:
+- https://github.com/ollama/ollama
+type: application
+version: 1.76.0
