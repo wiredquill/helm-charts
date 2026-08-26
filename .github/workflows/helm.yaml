@@ -9,6 +9,10 @@ on:
     types:
       - completed
 
+concurrency:
+  group: helm-charts-release
+  cancel-in-progress: false
+
 jobs:
   release:
     permissions:
