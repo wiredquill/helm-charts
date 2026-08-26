@@ -6,4 +6,4 @@ dependencies:
   repository: https://helm.openwebui.com/
   version: 8.22.1
 digest: sha256:bd63619d266ede6fc6c4e9718af5164b0af8fa8664ee79c3293353281aab5b6a
-generated: "2026-08-26T01:44:37.265709658+02:00"
+generated: "2026-08-26T02:01:13.647595505+02:00"
