@@ -73,6 +73,20 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.6.1
 
+      - name: Add helm repositories (chart dependencies)
+        run: |
+          for dir in $(ls -d charts/*/); do
+            if [ -f "$dir/Chart.yaml" ]; then
+              grep -E '^\s+repository:' "$dir/Chart.yaml" | awk '{print $2}' | sort -u | while read repo; do
+                case "$repo" in
+                  oci://*|file://*) continue ;;
+                  *) name=$(echo "$repo" | sed -E 's|https?://||; s|/.*||; s|[^a-zA-Z0-9]|_|g')
+                     helm repo add "$name" "$repo" >/dev/null 2>&1 || true ;;
+                esac
+              done
+            fi
+          done
+
       - name: Lint chart
         run: |
           ct lint --config .github/ct.yaml --charts charts/${{ matrix.chart }}
