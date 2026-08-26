@@ -3,63 +3,63 @@ entries:
   genai-observability-demo:
   - apiVersion: v2
     appVersion: 0.0.6
-    created: "2026-01-15T00:03:35.617011377Z"
+    created: "2026-08-26T15:07:45.141965449+02:00"
     description: A Helm chart for Kubernetes
     digest: 5ea4501879e194fcd9c4a42a979ae1bf5d08aaa04391972bb3a5a4ae2887f8c3
     name: genai-observability-demo
     type: application
     urls:
-    - genai-observability-demo-0.1.8.tgz
+    - https://wiredquill.github.io/helm-charts/genai-observability-demo-0.1.8.tgz
     version: 0.1.8
   - apiVersion: v2
     appVersion: 0.0.6
-    created: "2025-09-08T14:06:45.594672414Z"
+    created: "2026-08-26T15:07:45.141701228+02:00"
     description: A Helm chart for Kubernetes
     digest: c2a25202402668791e9620d371d3ca484dc3148123931bec3a41d36be3529a4c
     name: genai-observability-demo
     type: application
     urls:
-    - genai-observability-demo-0.1.7.tgz
+    - https://wiredquill.github.io/helm-charts/genai-observability-demo-0.1.7.tgz
     version: 0.1.7
   - apiVersion: v2
     appVersion: 0.0.6
-    created: "2025-07-17T15:23:48.614732622Z"
+    created: "2026-08-26T15:07:45.141401814+02:00"
     description: A Helm chart for Kubernetes
     digest: e6d670a6df3ab7cf2a37cbe38d1b46ebc9a7aaa7d430c21600224de80b1fd0bb
     name: genai-observability-demo
     type: application
     urls:
-    - genai-observability-demo-0.1.6.tgz
+    - https://wiredquill.github.io/helm-charts/genai-observability-demo-0.1.6.tgz
     version: 0.1.6
   - apiVersion: v2
     appVersion: 0.0.6
-    created: "2025-07-16T23:54:53.281359868Z"
+    created: "2026-08-26T15:07:45.141073011+02:00"
     description: A Helm chart for Kubernetes
     digest: 3dbbaf878031917466db70d96b65f32913dccf323f9d06e6cd6f34d5860cc17d
     name: genai-observability-demo
     type: application
     urls:
-    - genai-observability-demo-0.1.5.tgz
+    - https://wiredquill.github.io/helm-charts/genai-observability-demo-0.1.5.tgz
     version: 0.1.5
   - apiVersion: v2
     appVersion: 0.0.6
-    created: "2025-07-09T22:19:15.529710988Z"
+    created: "2026-08-26T15:07:45.140194897+02:00"
     description: A Helm chart for Kubernetes
     digest: d40b776444cff258c2c89caee5746f24434f14f932f23a1bf7466d4d5c2361e7
     name: genai-observability-demo
     type: application
     urls:
-    - genai-observability-demo-0.1.4.tgz
+    - https://wiredquill.github.io/helm-charts/genai-observability-demo-0.1.4.tgz
     version: 0.1.4
   - apiVersion: v2
     appVersion: 0.0.6
-    created: "2025-07-09T21:46:27.643632385Z"
+    created: "2026-08-26T15:07:45.139885473+02:00"
     description: A Helm chart for Kubernetes
     digest: d7c424fa0ad535e86c3c14a2e2fb219aa3021ea49c64f928da2e742f130e664f
     name: genai-observability-demo
     type: application
     urls:
-    - genai-observability-demo-0.1.3.tgz
+    - https://wiredquill.github.io/helm-charts/genai-observability-demo-0.1.3.tgz
     version: 0.1.3
   - apiVersion: v2
     appVersion: 0.0.6
@@ -74,18 +74,32 @@ entries:
   llm-comm-suse:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2025-07-09T18:39:02.987293849Z"
+    created: "2026-08-26T15:07:45.142183379+02:00"
     description: A Helm chart for deploying the SUSE LLM communication stack.
-    digest: 83fe7a0468bcc1c567e57b3c92a68c623baa8a3a9311dc2dc2409126ee6f1d13
+    digest: 8d7c621067476e365537093112035d5144f84df306370b6d2a7e695cce0ab2fb
     name: llm-comm-suse
     type: application
     urls:
-    - llm-comm-suse-0.1.28.tgz
+    - https://wiredquill.github.io/helm-charts/llm-comm-suse-0.1.28.tgz
     version: 0.1.28
+  milvus:
+  - apiVersion: v2
+    appVersion: 2.4.0
+    created: "2026-08-26T15:07:45.142315813+02:00"
+    description: Milvus is an open-source vector database built to power embedding
+      similarity search and AI applications. It provides unstructured data search
+      capabilities for AI applications and offers a consistent user experience regardless
+      of the deployment environment.
+    digest: ace0a418b6239df035a40a17f69718b9e65a66a55bfbc3dc0afc4e2c21667123
+    name: milvus
+    type: application
+    urls:
+    - https://wiredquill.github.io/helm-charts/milvus-0.1.0.tgz
+    version: 0.1.0
   n8n:
   - apiVersion: v2
     appVersion: 1.123.28
-    created: "2026-04-06T23:27:35.64733844Z"
+    created: "2026-08-26T15:07:45.143966852+02:00"
     description: n8n is a powerful workflow automation platform that allows you to
       connect anything to everything via its open, fair-code model. Build complex
       automations 10x faster with 400+ integrations and native AI capabilities.
@@ -93,11 +107,11 @@ entries:
     name: n8n
     type: application
     urls:
-    - n8n-0.1.6.tgz
+    - https://wiredquill.github.io/helm-charts/n8n-0.1.6.tgz
     version: 0.1.6
   - apiVersion: v2
     appVersion: 1.123.28
-    created: "2026-04-06T23:20:34.539831736Z"
+    created: "2026-08-26T15:07:45.143727643+02:00"
     description: n8n is a powerful workflow automation platform that allows you to
       connect anything to everything via its open, fair-code model. Build complex
       automations 10x faster with 400+ integrations and native AI capabilities.
@@ -105,11 +119,11 @@ entries:
     name: n8n
     type: application
     urls:
-    - n8n-0.1.5.tgz
+    - https://wiredquill.github.io/helm-charts/n8n-0.1.5.tgz
     version: 0.1.5
   - apiVersion: v2
     appVersion: 1.123.28
-    created: "2026-04-06T22:57:38.328908524Z"
+    created: "2026-08-26T15:07:45.143491417+02:00"
     description: n8n is a powerful workflow automation platform that allows you to
       connect anything to everything via its open, fair-code model. Build complex
       automations 10x faster with 400+ integrations and native AI capabilities.
@@ -117,11 +131,11 @@ entries:
     name: n8n
     type: application
     urls:
-    - n8n-0.1.4.tgz
+    - https://wiredquill.github.io/helm-charts/n8n-0.1.4.tgz
     version: 0.1.4
   - apiVersion: v2
     appVersion: 1.123.28
-    created: "2026-04-06T22:48:46.097917962Z"
+    created: "2026-08-26T15:07:45.143244942+02:00"
     description: n8n is a powerful workflow automation platform that allows you to
       connect anything to everything via its open, fair-code model. Build complex
       automations 10x faster with 400+ integrations and native AI capabilities.
@@ -129,11 +143,11 @@ entries:
     name: n8n
     type: application
     urls:
-    - n8n-0.1.3.tgz
+    - https://wiredquill.github.io/helm-charts/n8n-0.1.3.tgz
     version: 0.1.3
   - apiVersion: v2
     appVersion: 1.123.28
-    created: "2026-04-06T22:29:54.9877143Z"
+    created: "2026-08-26T15:07:45.142998048+02:00"
     description: n8n is a powerful workflow automation platform that allows you to
       connect anything to everything via its open, fair-code model. Build complex
       automations 10x faster with 400+ integrations and native AI capabilities.
@@ -141,11 +155,11 @@ entries:
     name: n8n
     type: application
     urls:
-    - n8n-0.1.2.tgz
+    - https://wiredquill.github.io/helm-charts/n8n-0.1.2.tgz
     version: 0.1.2
   - apiVersion: v2
     appVersion: 1.19.4
-    created: "2026-01-15T00:03:24.544807076Z"
+    created: "2026-08-26T15:07:45.142758632+02:00"
     description: n8n is a powerful workflow automation platform that allows you to
       connect anything to everything via its open, fair-code model. Build complex
       automations 10x faster with 400+ integrations and native AI capabilities.
@@ -153,11 +167,11 @@ entries:
     name: n8n
     type: application
     urls:
-    - n8n-0.1.1.tgz
+    - https://wiredquill.github.io/helm-charts/n8n-0.1.1.tgz
     version: 0.1.1
   - apiVersion: v2
     appVersion: 1.19.4
-    created: "2025-07-22T02:03:09.994521014Z"
+    created: "2026-08-26T15:07:45.142524746+02:00"
     description: n8n is a powerful workflow automation platform that allows you to
       connect anything to everything via its open, fair-code model. Build complex
       automations 10x faster with 400+ integrations and native AI capabilities.
@@ -165,12 +179,12 @@ entries:
     name: n8n
     type: application
     urls:
-    - n8n-0.1.0.tgz
+    - https://wiredquill.github.io/helm-charts/n8n-0.1.0.tgz
     version: 0.1.0
   ollama:
   - apiVersion: v2
     appVersion: 0.21.2
-    created: "2026-07-29T21:42:59.002909268Z"
+    created: "2026-08-26T15:07:45.144956274+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -178,11 +192,11 @@ entries:
     name: ollama
     type: application
     urls:
-    - ollama-0.1.3.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-0.1.3.tgz
     version: 0.1.3
   - apiVersion: v2
     appVersion: 0.21.2
-    created: "2026-07-29T21:42:27.979689044Z"
+    created: "2026-08-26T15:07:45.144788287+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -190,11 +204,11 @@ entries:
     name: ollama
     type: application
     urls:
-    - ollama-0.1.2.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-0.1.2.tgz
     version: 0.1.2
   - apiVersion: v2
     appVersion: 0.21.2
-    created: "2026-07-29T21:42:03.835671142Z"
+    created: "2026-08-26T15:07:45.144483399+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -202,12 +216,54 @@ entries:
     name: ollama
     type: application
     urls:
-    - ollama-0.1.1.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-0.1.1.tgz
     version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.3.0
+    created: "2026-08-26T15:07:45.144281989+02:00"
+    description: Ollama is a tool for running large language models locally. It provides
+      a simple API for creating, running, and managing models, and supports a library
+      of pre-built models that can be easily used in a variety of applications.
+    digest: 2297bf8db572f70d19ddffe5e208829dcd83cfa728e2ae9f843b723407c9a97a
+    name: ollama
+    type: application
+    urls:
+    - https://wiredquill.github.io/helm-charts/ollama-0.1.0.tgz
+    version: 0.1.0
+  ollama-suse:
+  - annotations:
+      category: MachineLearning
+      suse.com/enterprise: "true"
+      suse.com/registry: SUSE Application Collection
+    apiVersion: v2
+    appVersion: 0.21.2
+    created: "2026-08-26T15:07:45.146643854+02:00"
+    dependencies:
+    - name: ollama
+      repository: file://charts/ollama
+      version: 1.76.0
+    description: Wrapper chart for SUSE Application Collection Ollama with custom
+      questions.yaml
+    digest: bd6e90a17438a4032ccbb3a9d865fbcc9bb902fb94c278cb7c979e1f6051d032
+    keywords:
+    - ollama
+    - llm
+    - ai
+    - machine-learning
+    - suse
+    - enterprise
+    maintainers:
+    - email: ai-demos@example.com
+      name: AI Demos Team
+    name: ollama-suse
+    type: application
+    urls:
+    - https://wiredquill.github.io/helm-charts/ollama-suse-0.1.13.tgz
+    version: 0.1.13
   ollama-upstream:
   - apiVersion: v2
     appVersion: 0.20.2
-    created: "2026-07-29T21:57:45.925490475Z"
+    created: "2026-08-26T15:07:45.147143324+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -215,11 +271,11 @@ entries:
     name: ollama-upstream
     type: application
     urls:
-    - ollama-upstream-0.1.10.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-upstream-0.1.10.tgz
     version: 0.1.10
   - apiVersion: v2
     appVersion: 0.20.2
-    created: "2026-04-07T14:11:27.306798469Z"
+    created: "2026-08-26T15:07:45.1490653+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -227,11 +283,23 @@ entries:
     name: ollama-upstream
     type: application
     urls:
-    - ollama-upstream-0.1.9.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-upstream-0.1.9.tgz
     version: 0.1.9
   - apiVersion: v2
+    appVersion: 0.20.2
+    created: "2026-08-26T15:07:45.148894039+02:00"
+    description: Ollama is a tool for running large language models locally. It provides
+      a simple API for creating, running, and managing models, and supports a library
+      of pre-built models that can be easily used in a variety of applications.
+    digest: 6b4de71394a84bfaabb1f60e9f288b496df5cf9b242d2551096d0ca0fb048d7a
+    name: ollama-upstream
+    type: application
+    urls:
+    - https://wiredquill.github.io/helm-charts/ollama-upstream-0.1.8.tgz
+    version: 0.1.8
+  - apiVersion: v2
     appVersion: 0.17.7
-    created: "2026-03-06T19:53:03.640356384Z"
+    created: "2026-08-26T15:07:45.148710054+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -239,11 +307,11 @@ entries:
     name: ollama-upstream
     type: application
     urls:
-    - ollama-upstream-0.1.7.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-upstream-0.1.7.tgz
     version: 0.1.7
   - apiVersion: v2
     appVersion: 0.17.7
-    created: "2026-03-06T18:16:55.300363871Z"
+    created: "2026-08-26T15:07:45.148483573+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -251,11 +319,11 @@ entries:
     name: ollama-upstream
     type: application
     urls:
-    - ollama-upstream-0.1.6.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-upstream-0.1.6.tgz
     version: 0.1.6
   - apiVersion: v2
     appVersion: 0.3.0
-    created: "2026-02-01T20:24:22.108801234Z"
+    created: "2026-08-26T15:07:45.147804276+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -263,11 +331,11 @@ entries:
     name: ollama-upstream
     type: application
     urls:
-    - ollama-upstream-0.1.5.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-upstream-0.1.5.tgz
     version: 0.1.5
   - apiVersion: v2
     appVersion: 0.3.0
-    created: "2026-02-01T20:24:10.468234801Z"
+    created: "2026-08-26T15:07:45.147648249+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -275,11 +343,11 @@ entries:
     name: ollama-upstream
     type: application
     urls:
-    - ollama-upstream-0.1.4.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-upstream-0.1.4.tgz
     version: 0.1.4
   - apiVersion: v2
     appVersion: 0.3.0
-    created: "2026-02-01T20:24:05.350338448Z"
+    created: "2026-08-26T15:07:45.147491755+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -287,11 +355,11 @@ entries:
     name: ollama-upstream
     type: application
     urls:
-    - ollama-upstream-0.1.3.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-upstream-0.1.3.tgz
     version: 0.1.3
   - apiVersion: v2
     appVersion: 0.3.0
-    created: "2026-02-01T20:22:43.919120606Z"
+    created: "2026-08-26T15:07:45.147315286+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -299,11 +367,11 @@ entries:
     name: ollama-upstream
     type: application
     urls:
-    - ollama-upstream-0.1.2.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-upstream-0.1.2.tgz
     version: 0.1.2
   - apiVersion: v2
     appVersion: 0.3.0
-    created: "2025-08-06T21:02:08.956288889Z"
+    created: "2026-08-26T15:07:45.146955374+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -311,11 +379,11 @@ entries:
     name: ollama-upstream
     type: application
     urls:
-    - ollama-upstream-0.1.1.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-upstream-0.1.1.tgz
     version: 0.1.1
   - apiVersion: v2
     appVersion: 0.3.0
-    created: "2025-08-06T20:01:30.940262132Z"
+    created: "2026-08-26T15:07:45.146798578+02:00"
     description: Ollama is a tool for running large language models locally. It provides
       a simple API for creating, running, and managing models, and supports a library
       of pre-built models that can be easily used in a variety of applications.
@@ -323,6 +391,151 @@ entries:
     name: ollama-upstream
     type: application
     urls:
-    - ollama-upstream-0.1.0.tgz
+    - https://wiredquill.github.io/helm-charts/ollama-upstream-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-29T21:57:45.925564135Z"
+  ollama-webui-upstream:
+  - annotations:
+      category: MachineLearning
+      description: Complete AI chat platform with Ollama backend and Open WebUI frontend
+    apiVersion: v2
+    appVersion: "1.0"
+    created: "2026-08-26T15:07:45.154123235+02:00"
+    dependencies:
+    - name: ollama
+      repository: https://helm.otwld.com/
+      version: ^1.32.0
+    - name: open-webui
+      repository: https://helm.openwebui.com/
+      version: ^8.12.2
+    description: Integrated Ollama + Open WebUI wrapper chart with custom questions.yaml
+    digest: bdfb7520dddb078d01d8e4f756757eb77c2833206a3aaab966b23cf41b7ea651
+    keywords:
+    - ollama
+    - open-webui
+    - llm
+    - ai
+    - machine-learning
+    - chatgpt-ui
+    - upstream
+    maintainers:
+    - email: ai-demos@example.com
+      name: AI Demos Team
+    name: ollama-webui-upstream
+    type: application
+    urls:
+    - https://wiredquill.github.io/helm-charts/ollama-webui-upstream-0.1.3.tgz
+    version: 0.1.3
+  rancher-ai-ollama:
+  - annotations:
+      category: MachineLearning
+      suse.com/enterprise: "true"
+      suse.com/registry: SUSE Application Collection
+    apiVersion: v2
+    appVersion: 0.21.2
+    created: "2026-08-26T15:07:45.15505236+02:00"
+    description: Ollama model serving optimized for SUSE Rancher AI (Liz) with LiteLLM
+      gateway for token/cost observability via SUSE Observability
+    digest: 64beabce64b225f965db012be07845becb4a2018122b60bb5119ee56c7f21ce2
+    keywords:
+    - rancher-ai
+    - ollama
+    - litellm
+    - llm
+    - ai
+    - observability
+    - suse
+    maintainers:
+    - email: ai-demos@example.com
+      name: AI Demos Team
+    name: rancher-ai-ollama
+    type: application
+    urls:
+    - https://wiredquill.github.io/helm-charts/rancher-ai-ollama-0.2.21.tgz
+    version: 0.2.21
+  - annotations:
+      category: MachineLearning
+      suse.com/enterprise: "true"
+      suse.com/registry: SUSE Application Collection
+    apiVersion: v2
+    appVersion: 0.21.2
+    created: "2026-08-26T15:07:45.154616802+02:00"
+    description: Ollama model serving optimized for SUSE Rancher AI (Liz) with LiteLLM
+      gateway for token/cost observability via SUSE Observability
+    digest: d766984ab31d070a4bccbb1bfcfe98619d955534ff1ee79fb138a6bf80e8e25c
+    keywords:
+    - rancher-ai
+    - ollama
+    - litellm
+    - llm
+    - ai
+    - observability
+    - suse
+    maintainers:
+    - email: ai-demos@example.com
+      name: AI Demos Team
+    name: rancher-ai-ollama
+    type: application
+    urls:
+    - https://wiredquill.github.io/helm-charts/rancher-ai-ollama-0.2.20.tgz
+    version: 0.2.20
+  rancher-ai-vllm:
+  - annotations:
+      category: MachineLearning
+      suse.com/enterprise: "true"
+      suse.com/registry: SUSE Application Collection
+    apiVersion: v2
+    appVersion: 0.19.0
+    created: "2026-08-26T15:07:45.157577522+02:00"
+    dependencies:
+    - alias: vllm
+      name: vllm
+      repository: file://charts/vllm
+      version: 0.1.10
+    description: vLLM model serving for SUSE Rancher AI (Liz) with native Prometheus
+      token metrics scraped into SUSE Observability (wraps the SUSE Application Collection
+      vllm chart)
+    digest: 31f97823bc9469a28f0cdc3a0f4e523ef0f9e1a436d408f53979cd952c9c3a01
+    keywords:
+    - rancher-ai
+    - vllm
+    - llm
+    - ai
+    - observability
+    - suse
+    maintainers:
+    - email: ai-demos@example.com
+      name: AI Demos Team
+    name: rancher-ai-vllm
+    type: application
+    urls:
+    - https://wiredquill.github.io/helm-charts/rancher-ai-vllm-0.5.18.tgz
+    version: 0.5.18
+  stable-diffusion:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-08-26T15:07:45.158293359+02:00"
+    description: Stable Diffusion deployment with multiple UI options (ComfyUI, Automatic1111,
+      InvokeAI)
+    digest: 3d28adbc417d582f663c0dec174d88e768e5fa20d2fd3c64b0d32ce861e281a6
+    home: https://github.com/wiredquill/ai-demos
+    keywords:
+    - ai
+    - stable-diffusion
+    - image-generation
+    - comfyui
+    - automatic1111
+    - invokeai
+    - gpu
+    maintainers:
+    - email: wiredquill@users.noreply.github.com
+      name: wiredquill
+    name: stable-diffusion
+    sources:
+    - https://github.com/comfyanonymous/ComfyUI
+    - https://github.com/AUTOMATIC1111/stable-diffusion-webui
+    - https://github.com/invoke-ai/InvokeAI
+    type: application
+    urls:
+    - https://wiredquill.github.io/helm-charts/stable-diffusion-0.1.6.tgz
+    version: 0.1.6
+generated: "2026-08-26T15:07:45.139547918+02:00"
