@@ -485,6 +485,37 @@ entries:
       suse.com/registry: SUSE Application Collection
     apiVersion: v2
     appVersion: 0.19.0
+    created: "2026-08-28T14:22:51.783622346Z"
+    dependencies:
+    - alias: vllm
+      name: vllm
+      repository: file://charts/vllm
+      version: 0.1.10
+    description: vLLM model serving for SUSE Rancher AI (Liz) with native Prometheus
+      token metrics and full SUSE Observability integration including GenAI topology
+      (wraps the SUSE Application Collection vllm chart)
+    digest: 83c06ffa6fcaca0dcaab4e4c66337813927b34ca8cacd2922522a10e60580dfb
+    keywords:
+    - rancher-ai
+    - vllm
+    - llm
+    - ai
+    - observability
+    - suse
+    maintainers:
+    - email: ai-demos@example.com
+      name: AI Demos Team
+    name: rancher-ai-vllm
+    type: application
+    urls:
+    - rancher-ai-vllm-0.5.19.tgz
+    version: 0.5.19
+  - annotations:
+      category: MachineLearning
+      suse.com/enterprise: "true"
+      suse.com/registry: SUSE Application Collection
+    apiVersion: v2
+    appVersion: 0.19.0
     created: "2026-08-26T15:07:45.157577522+02:00"
     dependencies:
     - alias: vllm
@@ -538,4 +569,4 @@ entries:
     urls:
     - https://wiredquill.github.io/helm-charts/stable-diffusion-0.1.6.tgz
     version: 0.1.6
-generated: "2026-08-26T15:07:45.139547918+02:00"
+generated: "2026-08-28T14:22:51.783702275Z"
