@@ -173,3 +173,102 @@ vllm:
           {{- end }}
           {{- end }}
       {{- end }}
+
+# ===== Observability: SUSE Observability Integration =====
+# How the vLLM engine ships telemetry to SUSE Observability.
+#
+#   existing  - send Prometheus metrics to a collector that already runs in the cluster,
+#               named by otlpEndpoint below. Nothing extra is installed.
+#   operator  - ask the OpenTelemetry Operator to create a SUSE AI collector in
+#               this namespace, pre-wired with the GenAI topology pipeline. The
+#               engine metrics are collected automatically. Requires the
+#               OpenTelemetry Operator to be installed in the cluster.
+observability:
+  mode: existing
+
+  # Namespace holding the shared OpenTelemetry collector Service. Used to
+  # auto-discover the collector when otlpEndpoint is left empty, and by the
+  # pre-install connectivity-check hook.
+  collectorNamespace: observability
+
+  # Image used by the pre-install OTLP connectivity-check hook Job.
+  checkImage: curlimages/curl:8.5.0
+
+  # Reported as the service.namespace resource attribute, and the primary source
+  # SUSE Observability uses to group this release's SUSE AI components.
+  # Defaults to the release namespace.
+  serviceNamespace: ''
+
+# Observability endpoints
+# Used when observability.mode=existing. A single shared collector can serve every
+# namespace in the cluster; each release names itself via observability.serviceNamespace.
+otlpEndpoint: ''  # empty = auto-discover the collector Service at install time
+
+# OpenTelemetry Operator configuration (used when observability.mode=operator)
+opentelemetry:
+  operator:
+    # Set by observability.mode; kept for callers that set it directly.
+    enabled: false
+    mode: deployment
+    replicas: 1
+    # Set true to also log telemetry to the collector's stdout for debugging.
+    debug: false
+    image:
+      repository: registry.suse.com/ai/containers/suse-ai-opentelemetry-collector
+      tag: '0.149.0'
+      pullPolicy: IfNotPresent
+    # registry.suse.com/ai is authenticated; the collector pod needs these.
+    imagePullSecrets:
+      - name: application-collection
+      - name: suse-registry
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: '1'
+        memory: 1Gi
+    # Cluster name recorded on the telemetry. Defaults to the Rancher-injected
+    # global.cattle.clusterName, so it rarely needs setting by hand.
+    clusterName: ''
+
+    # SUSE_AI_NAMESPACE on the collector: the fallback applied only to telemetry
+    # that carries no service.namespace of its own. Defaults to the release namespace.
+    suseAiNamespace: ''
+
+    # SUSE Observability connection details (used only in operator mode).
+    # These must be set to enable the collector to export to SUSE Observability.
+    suseObservability:
+      # SUSE Observability API server URL (e.g. https://observability.example.com).
+      # REQUIRED when observability.mode=operator.
+      apiUrl: ''
+
+      # OpenTelemetry collector gRPC endpoint (host:port, no scheme).
+      # Where the collector ships OTLP metrics/traces.
+      # REQUIRED when observability.mode=operator.
+      otlpEndpoint: ''
+
+      # SUSE Observability API key for exporting topology.
+      # Choose one of: apiKey, existingSecret, or leave copySecret.enabled=true
+      # to auto-copy from suse-observability namespace.
+      apiKey: ''
+
+      # Existing Secret holding the API key. Takes priority over apiKey.
+      existingSecret: ''
+      # Secret key inside the existing secret (default: API_KEY)
+      existingSecretKey: 'API_KEY'
+
+      # Auto-copy the SUSE Observability API key from another namespace
+      # at pre-install time. Works only when apiKey and existingSecret are empty.
+      copySecret:
+        enabled: true
+        # Image for the pre-install copy Job.
+        image: 'curlimages/curl:8.5.0'
+        # Namespace holding the source secret (typically suse-observability).
+        sourceNamespace: 'suse-observability'
+        # Secret name to copy (typically suse-observability-api-key or similar).
+        name: 'suse-observability-api-key'
+
+      # TLS settings for the exporter.
+      otlpInsecure: false
+      skipTlsVerify: false

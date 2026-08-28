@@ -201,3 +201,93 @@ questions:
   type: "string"
   default: "nginx"
   show_if: "vllm.routerSpec.ingress.enabled=true"
+
+# ===== Observability (SUSE Observability Integration) =====
+- variable: observability.mode
+  group: "Observability"
+  label: "Observability Mode"
+  description: "<b>existing</b> — send metrics to a shared collector already in the cluster (default, no extra resources). <b>operator</b> — create a dedicated SUSE AI collector in this namespace using the OpenTelemetry Operator (requires OTel Operator to be installed in the cluster). Prometheus metrics from vLLM (/metrics) feed the topology: vllm_prompt_tokens_total, vllm_generation_tokens_total, vllm_time_to_first_token_seconds, vllm_time_per_output_token_seconds."
+  type: "enum"
+  default: "existing"
+  options:
+    - "existing"
+    - "operator"
+
+- variable: otlpEndpoint
+  group: "Observability"
+  label: "OTLP Endpoint (shared collector mode)"
+  description: "OpenTelemetry collector address where vLLM metrics are sent. Format: http://host:port (no path). <br><br><b>Leave blank to auto-discover:</b> the chart looks up the collector Service in the Collector Namespace below and uses it automatically. This auto-discovery runs at install time and fails the install if the collector cannot be found — so misconfigured collectors are caught immediately instead of silently failing to report metrics. <br><br>Find manually: <code>kubectl get svc -n observability | grep opentelemetry</code>"
+  type: "string"
+  default: ""
+  show_if: "observability.mode=existing"
+
+- variable: observability.collectorNamespace
+  group: "Observability"
+  label: "Collector Namespace"
+  description: "Kubernetes namespace where the shared OpenTelemetry collector Service runs. Used to auto-discover the collector when OTLP Endpoint is blank, and by the pre-install connectivity check. <br><br>Default: <code>observability</code>. If your collector is in <code>suse-observability</code> or another namespace, enter it here — or leave as-is and the chart checks common namespaces (observability, suse-observability)."
+  type: "string"
+  default: "observability"
+  show_if: "observability.mode=existing"
+
+- variable: observability.serviceNamespace
+  group: "Observability"
+  label: "Service Namespace (SUSE Observability grouping)"
+  description: "Namespace tag applied to vLLM components in SUSE Observability, used to group the topology. Defaults to the release namespace. Set to group multiple releases (e.g., all releases in namespace 'ai-stack' group together in the SUSE AI topology)."
+  type: "string"
+  default: ""
+
+- variable: opentelemetry.operator.suseObservability.apiUrl
+  group: "Observability"
+  label: "SUSE Observability API URL (operator mode)"
+  description: "SUSE Observability API server URL, e.g., https://observability.example.com. <br><br><b>REQUIRED when observability.mode=operator.</b> The collector uses this to export the SUSE AI topology (app → inference engine → model relations)."
+  type: "string"
+  default: ""
+  show_if: "observability.mode=operator"
+
+- variable: opentelemetry.operator.suseObservability.otlpEndpoint
+  group: "Observability"
+  label: "SUSE Observability OTLP Endpoint (operator mode)"
+  description: "OpenTelemetry collector gRPC endpoint hosted by SUSE Observability. Format: host:port (no scheme), e.g., collector.observability.suse.com:4317. <br><br><b>REQUIRED when observability.mode=operator.</b> The chart creates a collector in this namespace and wires it to export here."
+  type: "string"
+  default: ""
+  show_if: "observability.mode=operator"
+
+- variable: opentelemetry.operator.suseObservability.apiKey
+  group: "Observability"
+  label: "SUSE Observability API Key (operator mode) — OR use existing/copy methods below"
+  description: "SUSE Observability API key for exporting the topology. <br><br><b>Choose ONE method:</b><br>1. Paste the key here (Secrets tab shows it obscured).<br>2. Use Existing Secret (existingSecret field) if you already have one in this cluster.<br>3. Leave both empty and enable Auto-Copy Secret (below) — the chart copies it from suse-observability namespace at install time."
+  type: "password"
+  default: ""
+  show_if: "observability.mode=operator"
+
+- variable: opentelemetry.operator.suseObservability.existingSecret
+  group: "Observability"
+  label: "Existing Secret (operator mode) — leave empty if copying"
+  description: "Name of an existing Secret holding the SUSE Observability API key (alternative to pasting it above). The Secret must exist in this namespace and have a data field named API_KEY (or set the field name below). Ignored if left empty; the chart falls back to the API Key field above or auto-copy."
+  type: "string"
+  default: ""
+  show_if: "observability.mode=operator"
+
+- variable: opentelemetry.operator.suseObservability.copySecret.enabled
+  group: "Observability"
+  label: "Auto-Copy API Key Secret (operator mode) — from suse-observability namespace"
+  description: "Enable pre-install hook to copy the SUSE Observability API key from the suse-observability namespace (default) into this release's namespace. Works only when both API Key (above) and Existing Secret are empty. The hook fails loudly if the source secret cannot be found, so wrong secret names are caught immediately."
+  type: "boolean"
+  default: true
+  show_if: "observability.mode=operator"
+
+- variable: opentelemetry.operator.suseObservability.copySecret.sourceNamespace
+  group: "Observability"
+  label: "Auto-Copy Secret — Source Namespace"
+  description: "Namespace holding the SUSE Observability API key secret (default: suse-observability). Change this only if your cluster uses a different namespace for SUSE Observability infrastructure."
+  type: "string"
+  default: "suse-observability"
+  show_if: "observability.mode=operator && opentelemetry.operator.suseObservability.copySecret.enabled=true"
+
+- variable: opentelemetry.operator.suseObservability.copySecret.name
+  group: "Observability"
+  label: "Auto-Copy Secret — Secret Name"
+  description: "Name of the secret in the source namespace to copy (default: suse-observability-api-key). The secret must have a data field named API_KEY."
+  type: "string"
+  default: "suse-observability-api-key"
+  show_if: "observability.mode=operator && opentelemetry.operator.suseObservability.copySecret.enabled=true"

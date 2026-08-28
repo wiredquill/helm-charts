@@ -1,0 +1,194 @@
+{{- if include "rancher-ai-vllm.collectorEnabled" . }}
+{{- $collector := include "rancher-ai-vllm.collectorName" . }}
+{{- $so := .Values.opentelemetry.operator.suseObservability }}
+{{- if not $so.apiUrl }}
+{{- fail "observability.mode=operator requires opentelemetry.operator.suseObservability.apiUrl (e.g. https://observability.example.com)" }}
+{{- end }}
+{{- if not $so.otlpEndpoint }}
+{{- fail "observability.mode=operator requires opentelemetry.operator.suseObservability.otlpEndpoint (host:port, no scheme)" }}
+{{- end }}
+{{- if and (not $so.existingSecret) (not $so.apiKey) (not $so.copySecret.enabled) }}
+{{- fail "observability.mode=operator needs an API key: set suseObservability.apiKey, .existingSecret, or leave .copySecret.enabled=true" }}
+{{- end }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $collector }}
+  labels:
+    {{- include "rancher-ai-vllm.labels" . | nindent 4 }}
+{{- with .Values.opentelemetry.operator.imagePullSecrets }}
+imagePullSecrets:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+---
+# k8s_attributes needs to read pod/namespace/node metadata cluster-wide so the
+# SUSE AI components it emits carry the right Kubernetes identity.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ $collector }}-{{ .Release.Namespace }}
+  labels:
+    {{- include "rancher-ai-vllm.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "namespaces", "nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["replicasets"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $collector }}-{{ .Release.Namespace }}
+  labels:
+    {{- include "rancher-ai-vllm.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ $collector }}-{{ .Release.Namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $collector }}
+    namespace: {{ .Release.Namespace }}
+{{- if and $so.apiKey (not $so.existingSecret) }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $collector }}
+  labels:
+    {{- include "rancher-ai-vllm.labels" . | nindent 4 }}
+type: Opaque
+stringData:
+  API_KEY: {{ $so.apiKey | quote }}
+{{- end }}
+---
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: {{ $collector }}
+  labels:
+    {{- include "rancher-ai-vllm.labels" . | nindent 4 }}
+spec:
+  mode: {{ .Values.opentelemetry.operator.mode }}
+  replicas: {{ .Values.opentelemetry.operator.replicas }}
+  serviceAccount: {{ $collector }}
+  image: "{{ .Values.opentelemetry.operator.image.repository }}:{{ .Values.opentelemetry.operator.image.tag }}"
+  imagePullPolicy: {{ .Values.opentelemetry.operator.image.pullPolicy }}
+  {{- with .Values.opentelemetry.operator.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  env:
+    - name: MY_POD_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.podIP
+    - name: K8S_CLUSTER_NAME
+      value: {{ include "rancher-ai-vllm.clusterName" . | quote }}
+    - name: SUSE_AI_NAMESPACE
+      value: {{ include "rancher-ai-vllm.suseAiNamespace" . | quote }}
+    - name: API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: {{ include "rancher-ai-vllm.apiKeySecretName" . }}
+          key: {{ $so.existingSecretKey }}
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:4317
+          http:
+            endpoint: ${env:MY_POD_IP}:4318
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: vllm-metrics
+              static_configs:
+                - targets: ['localhost:9100']
+    extensions:
+      health_check:
+        endpoint: ${env:MY_POD_IP}:13133
+    processors:
+      memory_limiter:
+        check_interval: 5s
+        limit_percentage: 80
+        spike_limit_percentage: 25
+      batch: {}
+      k8s_attributes:
+        auth_type: serviceAccount
+        passthrough: false
+        extract:
+          metadata:
+            - k8s.namespace.name
+            - k8s.pod.name
+            - k8s.pod.uid
+            - k8s.deployment.name
+            - k8s.node.name
+        pod_association:
+          - sources:
+              - from: resource_attribute
+                name: k8s.pod.ip
+          - sources:
+              - from: connection
+
+      # --- SUSE AI topology inference for vLLM metrics --------------------
+      # Keep only GenAI signal on the inference pipelines.
+      filter/genai-metrics-only:
+        error_mode: ignore
+        metrics:
+          metric:
+            - not(IsMatch(name, "vllm.*"))
+      filter/exclude-already-tagged:
+        error_mode: ignore
+        metrics:
+          resource:
+            - attributes["suse.ai.component.name"] != nil
+
+      # Promote the vLLM engine identity onto the resource.
+      transform/infer-vllm-engine:
+        error_mode: ignore
+        metric_statements:
+          - context: resource
+            statements:
+              - set(attributes["suse.ai.managed"], "true")
+              - set(attributes["suse.ai.component.type"], "inference-engine")
+              - set(attributes["suse.ai.component.name"], "vllm")
+              - set(attributes["service.name"], "vllm")
+              - set(attributes["service.instance.id"], "vllm")
+              - set(attributes["k8s.namespace.name"], "${env:SUSE_AI_NAMESPACE}")
+
+    exporters:
+      otlp_grpc:
+        endpoint: {{ $so.otlpEndpoint | quote }}
+        headers:
+          Authorization: "SUSEObservability ${env:API_KEY}"
+        tls:
+          insecure: {{ $so.otlpInsecure }}
+          insecure_skip_verify: {{ $so.skipTlsVerify }}
+      topology:
+        api_key: ${env:API_KEY}
+        endpoint: {{ $so.apiUrl | quote }}
+        namespace: ${env:SUSE_AI_NAMESPACE}
+        tls:
+          insecure_skip_verify: {{ $so.skipTlsVerify }}
+      {{- if .Values.opentelemetry.operator.debug }}
+      debug:
+        verbosity: detailed
+      {{- end }}
+
+    service:
+      extensions: [health_check]
+      pipelines:
+        metrics:
+          receivers: [prometheus]
+          processors: [k8s_attributes, memory_limiter, batch]
+          exporters: [otlp_grpc{{ if .Values.opentelemetry.operator.debug }}, debug{{ end }}]
+        metrics/infer-vllm:
+          receivers: [prometheus]
+          processors: [filter/genai-metrics-only, filter/exclude-already-tagged, transform/infer-vllm-engine, k8s_attributes, batch]
+          exporters: [otlp_grpc{{ if .Values.opentelemetry.operator.debug }}, debug{{ end }}]
+{{- end }}

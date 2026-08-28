@@ -18,9 +18,21 @@ Model serving
   Scrape target:     {{ .Release.Name }}-engine-scrape (app.kubernetes.io/part-of=vllm)
 
 Observability (SUSE Observability)
-  Token metrics come from vLLM's native /metrics endpoint, scraped by the
-  cluster-level collector (see docs/rancher-ai-observability.md for the
-  collector scrape job + PromQL recipes).
-  Key metrics: vllm_prompt_tokens_total, vllm_generation_tokens_total,
-               vllm_time_to_first_token_seconds, vllm_time_per_output_token_seconds
-  Tokens/sec:  rate(vllm_generation_tokens_total[1m])
+{{- if eq .Values.observability.mode "operator" }}
+  OTel Operator mode: A collector has been created in this namespace to infer
+  the SUSE AI topology from vLLM metrics. The topology (inference-engine → models)
+  is automatically exported to {{ .Values.opentelemetry.operator.suseObservability.apiUrl }}.
+  Collector ready:   {{ include "rancher-ai-vllm.collectorName" . }}
+  API endpoint:      {{ .Values.opentelemetry.operator.suseObservability.apiUrl }}
+{{- else }}
+  Shared collector mode: Token metrics come from vLLM's native /metrics endpoint,
+  scraped by the cluster-level OpenTelemetry collector (namespace: {{ .Values.observability.collectorNamespace }}).
+  OTLP endpoint:     {{ include "rancher-ai-vllm.otlpEndpoint" . }}
+{{- end }}
+
+  Key metrics:  vllm_prompt_tokens_total, vllm_generation_tokens_total,
+                vllm_time_to_first_token_seconds, vllm_time_per_output_token_seconds,
+                vllm_cache_utilization
+  Tokens/sec:   rate(vllm_generation_tokens_total[1m])
+
+  View the SUSE AI topology in SUSE Observability → SUSE AI section.
