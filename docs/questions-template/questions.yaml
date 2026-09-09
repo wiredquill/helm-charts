@@ -1,0 +1,339 @@
+# ============================================================================
+# BASE questions.yaml TEMPLATE — Rancher UI form schema
+# ============================================================================
+# This is NOT a real chart's questions.yaml — it is a starting point to copy
+# into a new or existing chart under charts/<name>/questions.yaml.
+#
+# HOW TO USE:
+#   1. Copy this file's `questions:` list into your chart directory.
+#   2. Every `variable:` path below is a GENERIC PLACEHOLDER (image.repository,
+#      service.type, gpu.enabled, persistence.*, ingress.*, observability.*,
+#      nodeSelector, tolerations). Rename each path to match YOUR chart's
+#      actual values.yaml shape — a variable path that doesn't exist in
+#      values.yaml silently fails to bind (Rancher still shows the field,
+#      the value is just never applied). See README.md in this directory for
+#      the full schema reference, the show_if syntax, and the "duplicate
+#      variable across two tabs" idiom used for Quick-Start-style home pages.
+#   3. Tabs render in the Rancher UI in FIRST-OCCURRENCE order in this file.
+#      Reorder the blocks below (or insert a new "Quick Start" block first)
+#      to control tab order — don't rely on alphabetical or declared order.
+#   4. Delete any tab/fields that don't apply to your chart. Don't leave
+#      placeholder fields bound to paths that don't exist.
+#   5. If wrapping a vendored subchart (Helm dependency), always open its
+#      real values.yaml and confirm the path before writing a question —
+#      wrapper nesting is a common source of silently-broken bindings. See
+#      charts/ollama-suse/questions.yaml for a worked example.
+#
+# Legend used in comments below:
+#   [AS-IS]    boilerplate safe to copy unchanged for most charts
+#   [RENAME]   placeholder path — MUST be renamed to your chart's real path
+#   [OPTIONAL] include only if relevant to your chart
+# ============================================================================
+
+questions:
+
+# ---------------------------------------------------------------------------
+# TAB 1: General
+# ---------------------------------------------------------------------------
+- variable: image.repository              # [RENAME] to your chart's image path
+  label: "Image Repository"
+  description: "Container image repository to deploy."
+  type: "string"
+  default: "changeme/repository"
+  group: "General"
+  required: true
+
+- variable: image.tag                     # [RENAME]
+  label: "Image Tag"
+  description: "Container image tag. Leave as chart default unless you need a specific version."
+  type: "string"
+  default: ""
+  group: "General"
+
+- variable: image.pullPolicy              # [AS-IS]
+  label: "Image Pull Policy"
+  description: "When to pull the container image: 'IfNotPresent' avoids re-pulling unchanged images, 'Always' guarantees freshness, 'Never' requires the image to already exist on the node."
+  type: "enum"
+  options:
+    - "IfNotPresent"
+    - "Always"
+    - "Never"
+  default: "IfNotPresent"
+  group: "General"
+
+# GOTCHA: only bind this to a GENUINE LIST-typed values.yaml path. Several
+# charts in this repo bind a plain `type: string` field straight to
+# `imagePullSecrets` — that only works if YOUR chart's own template
+# explicitly wraps the string (e.g. `- name: {{ .Values.imagePullSecrets }}`).
+# If you're wrapping a vendored subchart you don't control, read its
+# _helpers.tpl first; you may need an indexed-list form instead, e.g.
+# `global.imagePullSecrets[0]` — see charts/ollama-suse/questions.yaml.
+- variable: imagePullSecrets              # [RENAME] — verify against your chart's template first
+  label: "Image Pull Secret"
+  description: "Name of an existing Kubernetes Secret used to pull the image from a private registry. Leave empty if the registry is public."
+  type: "string"
+  default: ""
+  group: "General"
+
+# ---------------------------------------------------------------------------
+# TAB 2: Service
+# ---------------------------------------------------------------------------
+- variable: service.type                  # [RENAME path prefix if nested]
+  label: "Service Type"
+  description: "Kubernetes service type used to expose the application."
+  type: "enum"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+  default: "ClusterIP"
+  group: "Service"
+  required: true
+
+- variable: service.port                  # [RENAME]
+  label: "Service Port"
+  description: "Port the Kubernetes Service listens on."
+  type: "int"
+  default: 8080
+  group: "Service"
+
+- variable: service.nodePort              # [RENAME]
+  label: "Node Port"
+  description: "Static port (30000-32767) to expose on every node. Only used when Service Type is NodePort."
+  type: "int"
+  min: 30000
+  max: 32767
+  default: 30080
+  show_if: "service.type=NodePort"
+  group: "Service"
+
+- variable: service.loadBalancerIP        # [RENAME]
+  label: "Load Balancer IP"
+  description: "Static IP address to assign to the LoadBalancer. Leave empty for automatic assignment by your cloud provider/MetalLB."
+  type: "string"
+  default: ""
+  show_if: "service.type=LoadBalancer"
+  group: "Service"
+
+# ---------------------------------------------------------------------------
+# TAB 3: GPU
+# ---------------------------------------------------------------------------
+- variable: gpu.enabled                   # [RENAME path prefix if nested]
+  label: "Enable GPU"
+  description: "Enable GPU acceleration. Requires a node with the appropriate GPU device plugin installed."
+  type: "boolean"
+  default: false
+  group: "GPU"
+
+- variable: gpu.type                      # [RENAME]
+  label: "GPU Type"
+  description: "GPU vendor to request resources from."
+  type: "enum"
+  options:
+    - "nvidia"
+    - "amd"
+  default: "nvidia"
+  show_if: "gpu.enabled=true"
+  group: "GPU"
+
+- variable: gpu.number                    # [RENAME]
+  label: "GPU Count"
+  description: "Number of GPUs to allocate to the pod."
+  type: "int"
+  min: 1
+  max: 8
+  default: 1
+  show_if: "gpu.enabled=true"
+  group: "GPU"
+
+# ---------------------------------------------------------------------------
+# TAB 4: Resources
+# ---------------------------------------------------------------------------
+- variable: resources.requests.cpu        # [AS-IS — path is a Helm convention]
+  label: "CPU Request"
+  description: "Minimum CPU reserved for the container (e.g. '500m', '2')."
+  type: "string"
+  default: "500m"
+  group: "Resources"
+
+- variable: resources.requests.memory     # [AS-IS]
+  label: "Memory Request"
+  description: "Minimum memory reserved for the container (e.g. '512Mi', '2Gi')."
+  type: "string"
+  default: "512Mi"
+  group: "Resources"
+
+- variable: resources.limits.cpu          # [AS-IS]
+  label: "CPU Limit"
+  description: "Maximum CPU the container may use."
+  type: "string"
+  default: "2000m"
+  group: "Resources"
+
+- variable: resources.limits.memory       # [AS-IS]
+  label: "Memory Limit"
+  description: "Maximum memory the container may use before it is OOM-killed."
+  type: "string"
+  default: "2Gi"
+  group: "Resources"
+
+# ---------------------------------------------------------------------------
+# TAB 5: Storage
+# ---------------------------------------------------------------------------
+- variable: persistence.enabled           # [RENAME path prefix if nested]
+  label: "Enable Persistence"
+  description: "Store data on a PersistentVolumeClaim so it survives pod restarts."
+  type: "boolean"
+  default: true
+  group: "Storage"
+
+- variable: persistence.size              # [RENAME]
+  label: "Storage Size"
+  description: "Size of the PersistentVolumeClaim (e.g. '10Gi', '100Gi')."
+  type: "string"
+  default: "10Gi"
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+- variable: persistence.storageClassName  # [RENAME]
+  label: "Storage Class"
+  description: "StorageClass to use for the PVC. Leave empty to use the cluster default."
+  type: "storageclass"
+  default: ""
+  show_if: "persistence.enabled=true"
+  group: "Storage"
+
+# ---------------------------------------------------------------------------
+# TAB 6: Ingress
+# ---------------------------------------------------------------------------
+- variable: ingress.enabled               # [RENAME path prefix if nested]
+  label: "Enable Ingress"
+  description: "Expose the application via a Kubernetes Ingress resource."
+  type: "boolean"
+  default: false
+  group: "Ingress"
+
+- variable: ingress.className             # [RENAME]
+  label: "Ingress Class"
+  description: "IngressClass to use (e.g. 'nginx', 'traefik'). Leave empty to use the cluster default."
+  type: "string"
+  default: ""
+  show_if: "ingress.enabled=true"
+  group: "Ingress"
+
+# NOTE: many charts store hosts as a LIST of {host, paths[]} objects rather
+# than a flat `ingress.host` string — check your chart's ingress.yaml
+# template. If so, bind to the indexed form instead, e.g.
+# `ingress.hosts[0].host` (see charts/ollama-suse/questions.yaml).
+- variable: ingress.host                  # [RENAME — confirm flat vs. hosts[0].host against YOUR template]
+  label: "Ingress Hostname"
+  description: "Hostname to route to this application (e.g. 'app.example.com')."
+  type: "hostname"
+  default: ""
+  show_if: "ingress.enabled=true"
+  group: "Ingress"
+  required: true
+
+# ---------------------------------------------------------------------------
+# TAB 7: Observability
+# ---------------------------------------------------------------------------
+# SIMPLE pattern (matches the SUSE AI Factory hr-assistant demo app), nested
+# under `observability.*` for consistency with every other tab in THIS
+# template — note the real-world example this is modeled on actually uses
+# flat top-level `otlpEndpoint`/`collectGpuStats` names; nest under
+# `observability.*` here since a template should establish one consistent
+# convention across its own tabs, even though its one real precedent predates
+# that convention.
+- variable: observability.otlpEndpoint    # [RENAME path prefix if your chart uses flat top-level names]
+  label: "OTLP Endpoint"
+  description: "OpenTelemetry collector endpoint (include http:// and port). Verify this is reachable from the cluster — misconfiguration here silently breaks tracing/metrics rather than failing the install."
+  type: "string"
+  default: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
+  group: "Observability"
+
+- variable: observability.collectGpuStats # [RENAME]
+  label: "Collect GPU Stats"
+  description: "Emit GPU utilization/memory metrics alongside standard telemetry. Only meaningful if GPU is enabled and your application/sidecar actually reads this flag — verify your chart's template consumes it before exposing it."
+  type: "boolean"
+  default: false
+  group: "Observability"
+
+# ---------------------------------------------------------------------------
+# TAB 8: Advanced
+# ---------------------------------------------------------------------------
+- variable: priorityClassName             # [AS-IS — genuinely scalar in most charts, and safe:
+                                           # most templates only render this `{{- if .Values.priorityClassName }}`,
+                                           # so an empty default is a true no-op]
+  label: "Priority Class Name"
+  description: "Kubernetes PriorityClass to assign to pods. Leave empty to use the cluster default."
+  type: "string"
+  default: ""
+  group: "Advanced"
+
+# CAUTION — read before using: nodeSelector/tolerations are MAPS/LISTS in
+# Kubernetes, but the legacy Rancher questions.yaml schema used throughout
+# this repo has NO native map/array widget (only scalar string/boolean/enum/
+# int/password/storageclass/secret/hostname — confirmed by grepping every
+# `type:` value used across every questions.yaml in this repo). The fields
+# below are ONE way to fake a single fixed override each, but they carry a
+# real, CONFIRMED failure mode: most deployment templates render
+# `nodeSelector`/`tolerations` whenever the underlying value is a non-empty
+# map/list, with NO separate "enabled" flag to gate on — an empty-value
+# default can still make the map/list non-empty and therefore get rendered.
+# Concretely, in charts/ollama-suse's vendored subchart, a `tolerations[0]`
+# entry defaulting to an empty key + `operator: Exists` is a Kubernetes
+# WILDCARD toleration (tolerates every taint) that would ship silently by
+# default, and a `nodeSelector.<key>` defaulting to `""` makes the pod
+# require a node with that label set to an empty string — effectively
+# permanently Pending. Because of this, charts/ollama-suse/questions.yaml
+# deliberately does NOT expose nodeSelector/tolerations at all. Before using
+# the fields below in your own chart: (a) confirm your template guards
+# nodeSelector/tolerations on more than plain truthiness, or (b) confirm
+# empty-string/empty-key defaults are genuinely harmless for your template's
+# specific logic, or (c) drop these fields and document that users should
+# edit values.yaml directly for this rare case.
+- variable: nodeSelector.customLabel      # [OPTIONAL, RISKY — read the caution above first]
+  label: "Node Selector: customLabel"
+  description: "Schedules pods only onto nodes with this label key set to the given value. Binds to a single, fixed map key — rename 'customLabel' above to the actual label key your cluster uses (e.g. 'disktype', 'gpu-pool'). CAUTION: verify your chart's template doesn't render this map when the value is empty (see comment above) before shipping a nonempty default."
+  type: "string"
+  default: ""
+  group: "Advanced"
+
+- variable: tolerations[0].key            # [OPTIONAL, RISKY — read the caution above first; compound
+                                           # `[0].field` indexing also has no other precedent in this repo]
+  label: "Toleration Key"
+  description: "CAUTION: an empty key with operator 'Exists' tolerates ALL taints. Only wire this up if your chart's template gates the whole tolerations block on a real boolean, not just list truthiness."
+  type: "string"
+  default: ""
+  group: "Advanced"
+
+- variable: tolerations[0].operator
+  label: "Toleration Operator"
+  type: "enum"
+  options:
+    - "Equal"
+    - "Exists"
+  default: "Equal"
+  group: "Advanced"
+
+- variable: tolerations[0].value
+  label: "Toleration Value"
+  type: "string"
+  default: ""
+  group: "Advanced"
+
+- variable: tolerations[0].effect
+  label: "Toleration Effect"
+  type: "enum"
+  options:
+    - "NoSchedule"
+    - "PreferNoSchedule"
+    - "NoExecute"
+  default: "NoSchedule"
+  group: "Advanced"
+
+# Autoscaling/HPA is intentionally NOT included as a standard tab: no chart
+# in this repo currently exposes it via questions.yaml, so there's no
+# established convention to follow. Add an "Autoscaling" tab per-chart if
+# and when you need one, following the same enabled/min/max/show_if shape
+# used elsewhere in this file.

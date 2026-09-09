@@ -1,108 +1,336 @@
+# questions.yaml for charts/ollama-suse
+# Built from the base template at docs/questions-template/questions.yaml.
+# See docs/questions-template/README.md for schema conventions.
+#
+# Nesting reminder (see charts/ollama-suse/values.yaml for the authoritative
+# shape): ollama.service.*, ollama.resources.*, ollama.persistentVolume.*,
+# ollama.ingress.*, ollama.global.*, ollama.extraEnv, ollama.priorityClassName
+# sit ONE level under ollama.* (the dependency alias). ollama.ollama.* is TWO
+# levels down because the vendored SUSE ollama subchart nests port/gpu/models
+# under its OWN internal `ollama:` key.
+
 questions:
-# === FRONT PAGE - MOST IMPORTANT OPTIONS ===
+
+# ===========================================================================
+# TAB 1: Quick Start (renders first — Rancher orders tabs by first
+# occurrence in this file)
+# ===========================================================================
+# Each field below is intentionally duplicated verbatim later in the file
+# under its proper dedicated tab (Model Configuration / GPU Configuration /
+# Service Configuration) — see docs/questions-template/README.md, "The
+# 'duplicate variable across two tabs' idiom". Keep both copies of each
+# field byte-for-byte identical (default/type/options/description) if you
+# edit one.
+
+- variable: ollama.ollama.models.pull[0]
+  label: "Model"
+  description: "Primary Ollama model to pull and serve on startup (e.g. 'llama3.2:latest', 'tinyllama:latest', 'gemma2:9b')."
+  type: "string"
+  default: "llama3.2:latest"
+  group: "Quick Start"
+  required: true
+
+- variable: ollama.ollama.gpu.enabled
+  label: "Enable GPU"
+  description: "Enable GPU support for Ollama (NVIDIA or AMD GPU required on the target node)."
+  type: "boolean"
+  default: true
+  group: "Quick Start"
+
 - variable: ollama.service.type
-  default: "ClusterIP"
-  description: "Service type for accessing Ollama"
-  type: enum
+  label: "Service Type"
+  description: "Kubernetes service type for accessing Ollama."
+  type: "enum"
   options:
     - "ClusterIP"
     - "NodePort"
     - "LoadBalancer"
-  label: Service Type
+  default: "ClusterIP"
+  group: "Quick Start"
+
+- variable: ollama.service.loadBalancerIP
+  label: "Load Balancer IP"
+  description: "Static IP address to assign to the LoadBalancer. Leave empty for automatic assignment."
+  type: "string"
+  default: ""
+  show_if: "ollama.service.type=LoadBalancer"
+  group: "Quick Start"
+
+# ===========================================================================
+# TAB 2: General
+# ===========================================================================
+- variable: ollama.image.repository
+  label: "Image Repository"
+  description: "Container image repository for Ollama (SUSE Application Collection)."
+  type: "string"
+  default: "registry.suse.com/bci/ollama"
+  group: "General"
+  required: true
+
+- variable: ollama.image.tag
+  label: "Image Tag"
+  description: "Ollama image tag to deploy."
+  type: "string"
+  default: "0.21.2"
+  group: "General"
+
+- variable: ollama.image.pullPolicy
+  label: "Image Pull Policy"
+  description: "When to pull the Ollama image."
+  type: "enum"
+  options:
+    - "IfNotPresent"
+    - "Always"
+    - "Never"
+  default: "IfNotPresent"
+  group: "General"
+
+# GOTCHA: do NOT bind a plain `type: string` field straight to
+# `ollama.imagePullSecrets` — the vendored subchart's _helpers.tpl expects
+# the non-global `imagePullSecrets` to already be a list of {name: ...} maps
+# (it does a bare `toYaml`), while `global.imagePullSecrets` explicitly
+# converts each plain string entry into {name: <string>}. Bind to the global
+# passthrough instead so a simple string question works correctly:
+- variable: ollama.global.imagePullSecrets[0]
+  label: "Image Pull Secret"
+  description: "Name of an existing Kubernetes Secret for pulling from a private/authenticated registry. Leave empty if registry.suse.com is reachable without authentication in your environment."
+  type: "string"
+  default: ""
+  group: "General"
+
+# ===========================================================================
+# TAB 3: Service Configuration
+# ===========================================================================
+- variable: ollama.service.type
+  label: "Service Type"
+  description: "Kubernetes service type for accessing Ollama."
+  type: "enum"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+  default: "ClusterIP"
   group: "Service Configuration"
 
+- variable: ollama.service.nodePort
+  label: "Node Port"
+  description: "Static port (30000-32767) to expose on every node. Only used when Service Type is NodePort."
+  type: "int"
+  min: 30000
+  max: 32767
+  default: 31434
+  show_if: "ollama.service.type=NodePort"
+  group: "Service Configuration"
+
+- variable: ollama.service.loadBalancerIP
+  label: "Load Balancer IP"
+  description: "Static IP address to assign to the LoadBalancer. Leave empty for automatic assignment."
+  type: "string"
+  default: ""
+  show_if: "ollama.service.type=LoadBalancer"
+  group: "Service Configuration"
+
+# ===========================================================================
+# TAB 4: GPU Configuration
+# ===========================================================================
 - variable: ollama.ollama.gpu.enabled
+  label: "Enable GPU"
+  description: "Enable GPU support for Ollama (NVIDIA or AMD GPU required)."
+  type: "boolean"
   default: true
-  description: "Enable GPU support for Ollama (NVIDIA GPU required)"
-  type: boolean
-  label: Enable GPU
   group: "GPU Configuration"
 
 - variable: ollama.ollama.gpu.type
-  default: "nvidia"
-  description: "GPU type (nvidia or amd)"
-  type: enum
+  label: "GPU Type"
+  description: "GPU vendor to request resources from."
+  type: "enum"
   options:
     - "nvidia"
     - "amd"
-  label: GPU Type
-  group: "GPU Configuration"
+  default: "nvidia"
   show_if: "ollama.ollama.gpu.enabled=true"
+  group: "GPU Configuration"
 
 - variable: ollama.ollama.gpu.number
-  default: 1
-  description: "Number of GPUs to allocate"
-  type: int
+  label: "GPU Count"
+  description: "Number of GPUs to allocate."
+  type: "int"
   min: 1
   max: 8
-  label: GPU Count
-  group: "GPU Configuration"
+  default: 1
   show_if: "ollama.ollama.gpu.enabled=true"
+  group: "GPU Configuration"
 
-# === RESOURCE CONFIGURATION (SUSE Enterprise Sizing) ===
+# ===========================================================================
+# TAB 5: Resource Configuration
+# ===========================================================================
 - variable: ollama.resources.requests.memory
+  label: "Memory Request"
+  description: "Memory request for Ollama (enterprise sizing)."
+  type: "string"
   default: "4Gi"
-  description: "Memory request for Ollama (enterprise sizing)"
-  type: string
-  label: Memory Request
   group: "Resource Configuration"
 
 - variable: ollama.resources.requests.cpu
-  default: "1"
-  description: "CPU request for Ollama (enterprise sizing)"
-  type: string
-  label: CPU Request
+  label: "CPU Request"
+  description: "CPU request for Ollama (enterprise sizing)."
+  type: "string"
+  default: "2000m"
   group: "Resource Configuration"
 
 - variable: ollama.resources.limits.memory
+  label: "Memory Limit"
+  description: "Memory limit for Ollama (enterprise sizing)."
+  type: "string"
   default: "16Gi"
-  description: "Memory limit for Ollama (enterprise sizing)"
-  type: string
-  label: Memory Limit
   group: "Resource Configuration"
 
 - variable: ollama.resources.limits.cpu
+  label: "CPU Limit"
+  description: "CPU limit for Ollama (enterprise sizing)."
+  type: "string"
   default: "8000m"
-  description: "CPU limit for Ollama (enterprise sizing)"
-  type: string
-  label: CPU Limit
   group: "Resource Configuration"
 
-# === MODEL CONFIGURATION ===
-- variable: ollama.ollama.models[0]
+# ===========================================================================
+# TAB 6: Model Configuration
+# ===========================================================================
+# FIX: the previous version of this file bound to `ollama.ollama.models[0]`
+# / `ollama.ollama.models[1]`, but `models` is not a list in values.yaml —
+# it's an object with two list-valued fields, `models.pull` and
+# `models.run`. These now correctly index into `models.pull`/`models.run`.
+- variable: ollama.ollama.models.pull[0]
+  label: "Primary Model"
+  description: "Primary model to pull on startup (e.g. 'llama3.2:latest', 'tinyllama:latest')."
+  type: "string"
   default: "llama3.2:latest"
-  description: "Primary model to pull on startup (e.g., 'llama3.2:latest', 'tinyllama:latest')"
-  type: string
-  label: Primary Model
   group: "Model Configuration"
+  required: true
 
-- variable: ollama.ollama.models[1]
+- variable: ollama.ollama.models.pull[1]
+  label: "Secondary Model"
+  description: "Optional second model to pull on startup. Leave empty to skip."
+  type: "string"
   default: ""
-  description: "Optional second model to pull on startup"
-  type: string
-  label: Secondary Model
   group: "Model Configuration"
 
-# === STORAGE CONFIGURATION (SUSE Defaults) ===
+- variable: ollama.ollama.models.run[0]
+  label: "Preload Model Into Memory"
+  description: "Optional: a model name to keep loaded in memory at startup (avoids a cold-start delay on first request). Usually the same as Primary Model above. Leave empty to load models on-demand only."
+  type: "string"
+  default: ""
+  group: "Model Configuration"
+
+# ===========================================================================
+# TAB 7: Storage Configuration
+# ===========================================================================
 - variable: ollama.persistentVolume.enabled
+  label: "Enable Persistence"
+  description: "Enable persistent storage for models."
+  type: "boolean"
   default: true
-  description: "Enable persistent storage for models"
-  type: boolean
-  label: Enable Persistence
   group: "Storage Configuration"
 
 - variable: ollama.persistentVolume.size
+  label: "Storage Size"
+  description: "Size of persistent volume for models."
+  type: "string"
   default: "100Gi"
-  description: "Size of persistent volume for models"
-  type: string
-  label: Storage Size
-  group: "Storage Configuration"
   show_if: "ollama.persistentVolume.enabled=true"
+  group: "Storage Configuration"
 
 - variable: ollama.persistentVolume.storageClass
+  label: "Storage Class"
+  description: "Storage class for persistent volume."
+  type: "storageclass"
   default: "suse-csi"
-  description: "Storage class for persistent volume"
-  type: storageclass
-  label: Storage Class
-  group: "Storage Configuration"
   show_if: "ollama.persistentVolume.enabled=true"
+  group: "Storage Configuration"
+
+# ===========================================================================
+# TAB 8: Ingress Configuration
+# ===========================================================================
+- variable: ollama.ingress.enabled
+  label: "Enable Ingress"
+  description: "Expose Ollama via a Kubernetes Ingress resource."
+  type: "boolean"
+  default: false
+  group: "Ingress Configuration"
+
+- variable: ollama.ingress.className
+  label: "Ingress Class"
+  description: "IngressClass to use (e.g. 'nginx', 'traefik'). Leave empty to use the cluster default."
+  type: "string"
+  default: ""
+  show_if: "ollama.ingress.enabled=true"
+  group: "Ingress Configuration"
+
+# NOTE: the vendored ollama chart's ingress.yaml ranges over
+# .Values.ingress.hosts (a LIST of {host, paths[]} objects), not a flat
+# ingress.host string — confirmed by reading
+# charts/ollama-suse/charts/ollama/templates/ingress.yaml directly.
+- variable: ollama.ingress.hosts[0].host
+  label: "Ingress Hostname"
+  description: "Hostname to route to this Ollama instance (e.g. 'ollama.example.com')."
+  type: "hostname"
+  default: ""
+  show_if: "ollama.ingress.enabled=true"
+  group: "Ingress Configuration"
+  required: true
+
+# ===========================================================================
+# TAB 9: Observability
+# ===========================================================================
+# SIMPLE pattern (matches the SUSE AI Factory hr-assistant demo app's
+# OpenTelemetry setup). CAVEAT: the vendored `ollama` chart has no built-in
+# OTel exporter and no native GPU-stats knob, and charts/ollama-suse/templates/
+# contains only NOTES.txt + _helpers.tpl (no deployment of its own to add
+# translation logic to). These two fields are therefore wired directly into
+# the subchart's existing, already-functional `extraEnv` passthrough as real
+# environment variables on the Ollama container — they render into the pod
+# spec correctly, but are not consumed by the `ollama` binary today. They
+# exist to (a) match this repo's standard Observability tab for UI/UX
+# consistency across charts, and (b) be immediately available to any future
+# sidecar/exporter that reads standard OTel env vars. Wiring up an actual
+# metrics/tracing pipeline for Ollama would require either an updated image
+# with built-in OTel support or a separately-deployed OTel Collector
+# scraping Ollama/GPU exporters — both out of scope for this questions.yaml.
+- variable: ollama.extraEnv[0].value
+  label: "OTLP Endpoint"
+  description: "OpenTelemetry collector endpoint (include http:// and port). NOTE: the stock Ollama binary does not natively export OTel telemetry — this sets the OTEL_EXPORTER_OTLP_ENDPOINT env var for future use by an exporter sidecar or an updated image."
+  type: "string"
+  default: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
+  group: "Observability"
+
+# Deliberately `type: enum` with string options, NOT `type: boolean`: a
+# native YAML boolean written into extraEnv[].value would serialize as an
+# unquoted true/false, which the Kubernetes API rejects (EnvVar.value is a
+# Go string field — "cannot unmarshal bool into Go struct field
+# EnvVar.value of type string"). Using enum guarantees a quoted string.
+- variable: ollama.extraEnv[1].value
+  label: "Collect GPU Stats"
+  description: "Whether to emit GPU utilization/memory metrics via the OLLAMA_COLLECT_GPU_STATS env var. See tab description above — not yet consumed by the stock Ollama image."
+  type: "enum"
+  options:
+    - "false"
+    - "true"
+  default: "false"
+  group: "Observability"
+
+# ===========================================================================
+# TAB 10: Advanced
+# ===========================================================================
+- variable: ollama.priorityClassName
+  label: "Priority Class Name"
+  description: "Kubernetes PriorityClass to assign to the Ollama pod. Leave empty to use the cluster default."
+  type: "string"
+  default: ""
+  group: "Advanced"
+
+# NOTE: nodeSelector/tolerations are deliberately NOT exposed here. The
+# vendored subchart renders `tolerations:` whenever `.Values.tolerations` is
+# a non-empty list (no separate enable flag), so a form-friendly single-entry
+# default risks shipping a Kubernetes wildcard toleration or an
+# unschedulable nodeSelector by default. See
+# docs/questions-template/README.md, "Maps and lists" section, for the full
+# reasoning. Edit values.yaml directly if you need either of these.

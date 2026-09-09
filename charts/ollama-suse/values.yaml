@@ -15,9 +15,17 @@ ollama:
     tag: "0.21.2"
     pullPolicy: IfNotPresent
 
+  # Global passthrough into the vendored subchart. Must stay a list of
+  # strings/maps here - the subchart's imagePullSecrets helper converts each
+  # string entry into {name: <string>} (see questions.yaml General tab).
+  global:
+    imagePullSecrets: []
+
   # Service configuration - at root of dependency values
   service:
     type: ClusterIP
+    nodePort: 31434
+    loadBalancerIP: ""
 
   # Enterprise resource configuration - CPU and memory allocations
   # These are merged with GPU resources when gpu.enabled=true
@@ -35,6 +43,30 @@ ollama:
     size: "100Gi"
     storageClass: "suse-csi"
 
+  # Ingress configuration, off by default. Made explicit here (rather than
+  # relying silently on the vendored subchart's own defaults) so
+  # questions.yaml has a documented default to bind to.
+  ingress:
+    enabled: false
+    className: ""
+    hosts:
+      - host: ""
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+
+  # Observability env vars (see questions.yaml Observability tab for why
+  # these are wired via extraEnv rather than a first-class values field -
+  # the stock Ollama image doesn't natively consume them yet).
+  extraEnv:
+    - name: OTEL_EXPORTER_OTLP_ENDPOINT
+      value: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
+    - name: OLLAMA_COLLECT_GPU_STATS
+      value: "false"
+
+  priorityClassName: ""
+
   # Ollama-specific configuration (nested under ollama section of upstream chart)
   ollama:
     # Port configuration
@@ -47,7 +79,9 @@ ollama:
       number: 1
       nvidiaResource: "nvidia.com/gpu"
 
-    # Models to pull/run at startup
+    # Models to pull/run at startup. Primary model seeded to match
+    # questions.yaml's "Primary Model" / "Model" question defaults.
     models:
-      pull: []
+      pull:
+        - "llama3.2:latest"
       run: []
