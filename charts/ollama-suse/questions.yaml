@@ -47,6 +47,16 @@ questions:
   default: "ClusterIP"
   group: "Quick Start"
 
+- variable: ollama.service.nodePort
+  label: "Node Port"
+  description: "Static port (30000-32767) to expose on every node. Only used when Service Type is NodePort."
+  type: "int"
+  min: 30000
+  max: 32767
+  default: 31434
+  show_if: "ollama.service.type=NodePort"
+  group: "Quick Start"
+
 - variable: ollama.service.loadBalancerIP
   label: "Load Balancer IP"
   description: "Static IP address to assign to the LoadBalancer. Leave empty for automatic assignment."
@@ -63,7 +73,7 @@ questions:
 # "Basic/Advanced toggle (tab-level show_if)".
 - variable: ollama.showAdvanced
   label: "Show Advanced Options"
-  description: "Reveals less-common settings (image tag/registry details, NodePort/Ingress, secondary models, storage class, Observability, and Advanced tabs) across every tab below. Leave unchecked for a minimal, guided setup."
+  description: "Reveals less-common settings (image tag/registry details, Ingress, secondary models, storage class, Observability, and Advanced tabs) across every tab below. Leave unchecked for a minimal, guided setup."
   type: "boolean"
   default: false
   group: "Quick Start"
@@ -131,12 +141,12 @@ questions:
 
 - variable: ollama.service.nodePort
   label: "Node Port"
-  description: "Static port (30000-32767) to expose on every node. Only used when Service Type is NodePort. A working default is already set, so this is only needed to pin a specific port."
+  description: "Static port (30000-32767) to expose on every node. Only used when Service Type is NodePort."
   type: "int"
   min: 30000
   max: 32767
   default: 31434
-  show_if: "ollama.service.type=NodePort && ollama.showAdvanced=true"
+  show_if: "ollama.service.type=NodePort"
   group: "Networking"
 
 - variable: ollama.service.loadBalancerIP
