@@ -15,11 +15,13 @@ questions:
 # TAB 1: Quick Start (renders first — Rancher orders tabs by first
 # occurrence in this file)
 # ===========================================================================
-# Each field below is intentionally duplicated verbatim later in the file
-# under its proper dedicated tab (Model Configuration / GPU Configuration /
-# Networking) — see docs/questions-template/README.md, "The 'duplicate
-# variable across two tabs' idiom". Keep both copies of each field
-# byte-for-byte identical (default/type/options/description) if you edit one.
+# Model, Enable GPU, and Service Type/LoadBalancer IP below are intentionally
+# duplicated verbatim later in the file under their proper dedicated tab
+# (Resource Configuration / Networking) — see docs/questions-template/README.md,
+# "The 'duplicate variable across two tabs' idiom". Keep both copies of each
+# field byte-for-byte identical (default/type/options/description) if you
+# edit one. Secondary Model / Preload Model Into Memory below, by contrast,
+# exist ONLY here — there's no separate Model Configuration tab.
 
 - variable: ollama.ollama.models.pull[0]
   label: "Model"
@@ -76,6 +78,27 @@ questions:
   description: "Reveals less-common settings (image tag/registry details, Ingress, secondary models, storage class, and the Advanced tab) across every tab below. Leave unchecked for a minimal, guided setup. Observability stays visible regardless — it's not considered advanced."
   type: "boolean"
   default: false
+  group: "Quick Start"
+
+# There is no separate "Model Configuration" tab — Primary Model above is
+# the only model field visible by default; these two reveal only once Show
+# Advanced Options is checked. (`ollama.ollama.models` is an object with
+# list-valued `pull`/`run` fields in values.yaml, not a flat list — these
+# index into `models.pull[1]`/`models.run[0]` accordingly.)
+- variable: ollama.ollama.models.pull[1]
+  label: "Secondary Model"
+  description: "Optional second model to pull on startup. Leave empty to skip."
+  type: "string"
+  default: ""
+  show_if: "ollama.showAdvanced=true"
+  group: "Quick Start"
+
+- variable: ollama.ollama.models.run[0]
+  label: "Preload Model Into Memory"
+  description: "Optional: a model name to keep loaded in memory at startup (avoids a cold-start delay on first request). Usually the same as Primary Model above. Leave empty to load models on-demand only."
+  type: "string"
+  default: ""
+  show_if: "ollama.showAdvanced=true"
   group: "Quick Start"
 
 # ===========================================================================
@@ -189,43 +212,14 @@ questions:
   required: true
 
 # ===========================================================================
-# TAB 4: GPU Configuration
+# TAB 4: Resource Configuration
 # ===========================================================================
-- variable: ollama.ollama.gpu.enabled
-  label: "Enable GPU"
-  description: "Enable GPU support for Ollama (NVIDIA or AMD GPU required)."
-  type: "boolean"
-  default: true
-  group: "GPU Configuration"
-
-- variable: ollama.ollama.gpu.type
-  label: "GPU Type"
-  description: "GPU vendor to request resources from."
-  type: "enum"
-  options:
-    - "nvidia"
-    - "amd"
-  default: "nvidia"
-  show_if: "ollama.ollama.gpu.enabled=true"
-  group: "GPU Configuration"
-
-- variable: ollama.ollama.gpu.number
-  label: "GPU Count"
-  description: "Number of GPUs to allocate."
-  type: "int"
-  min: 1
-  max: 8
-  default: 1
-  show_if: "ollama.ollama.gpu.enabled=true"
-  group: "GPU Configuration"
-
-# ===========================================================================
-# TAB 5: Resource Configuration
-# ===========================================================================
-# GPU fields duplicated from GPU Configuration (same "duplicate variable
-# across two tabs" idiom as Quick Start) so GPU allocation sits alongside
-# CPU/memory sizing where people naturally look for it. Keep in sync with
-# the GPU Configuration tab below if you edit either copy.
+# GPU fields live only here and on Quick Start now (no separate "GPU
+# Configuration" tab) - Enable GPU on Quick Start is the basic toggle, and
+# this is the full GPU config (type/count) nested right under its own
+# Enable GPU, alongside CPU/memory sizing where people naturally look for
+# GPU allocation. Keep this copy of "Enable GPU" in sync with Quick Start's
+# if you edit either (same "duplicate variable across two tabs" idiom).
 - variable: ollama.ollama.gpu.enabled
   label: "Enable GPU"
   description: "Enable GPU support for Ollama (NVIDIA or AMD GPU required)."
@@ -283,38 +277,7 @@ questions:
   group: "Resource Configuration"
 
 # ===========================================================================
-# TAB 6: Model Configuration
-# ===========================================================================
-# FIX: the previous version of this file bound to `ollama.ollama.models[0]`
-# / `ollama.ollama.models[1]`, but `models` is not a list in values.yaml —
-# it's an object with two list-valued fields, `models.pull` and
-# `models.run`. These now correctly index into `models.pull`/`models.run`.
-- variable: ollama.ollama.models.pull[0]
-  label: "Primary Model"
-  description: "Primary model to pull on startup (e.g. 'llama3.2:latest', 'tinyllama:latest')."
-  type: "string"
-  default: "llama3.2:latest"
-  group: "Model Configuration"
-  required: true
-
-- variable: ollama.ollama.models.pull[1]
-  label: "Secondary Model"
-  description: "Optional second model to pull on startup. Leave empty to skip."
-  type: "string"
-  default: ""
-  show_if: "ollama.showAdvanced=true"
-  group: "Model Configuration"
-
-- variable: ollama.ollama.models.run[0]
-  label: "Preload Model Into Memory"
-  description: "Optional: a model name to keep loaded in memory at startup (avoids a cold-start delay on first request). Usually the same as Primary Model above. Leave empty to load models on-demand only."
-  type: "string"
-  default: ""
-  show_if: "ollama.showAdvanced=true"
-  group: "Model Configuration"
-
-# ===========================================================================
-# TAB 7: Storage Configuration
+# TAB 5: Storage Configuration
 # ===========================================================================
 - variable: ollama.persistentVolume.enabled
   label: "Enable Persistence"
@@ -340,7 +303,7 @@ questions:
   group: "Storage Configuration"
 
 # ===========================================================================
-# TAB 8: Observability — always visible, NOT gated behind the Advanced
+# TAB 6: Observability — always visible, NOT gated behind the Advanced
 # toggle. SUSE AI Factory deployments are expected to have OpenTelemetry
 # wired in by default, so this tab stays on the front page of tabs
 # regardless of Show Advanced Options.
@@ -394,7 +357,7 @@ questions:
   group: "Observability"
 
 # ===========================================================================
-# TAB 9: Advanced — also entirely gated behind the toggle, same mechanism.
+# TAB 7: Advanced — also entirely gated behind the toggle, same mechanism.
 # ===========================================================================
 - variable: ollama.priorityClassName
   label: "Priority Class Name"
