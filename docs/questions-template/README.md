@@ -117,9 +117,9 @@ See `charts/ollama-suse/questions.yaml` for a worked example: its
 gates fields within Quick Start/Image/Networking/Storage Configuration —
 while Observability stays visible unconditionally. That chart also shows
 that a tab doesn't need to exist at all: there's no dedicated "Model
-Configuration" or "GPU Configuration" tab — Model and GPU settings live on
-Quick Start and (for the fuller GPU/model options) Resource Configuration,
-rather than getting their own tab each.
+Configuration" or "GPU Configuration" tab — the full Model and GPU settings
+(including the normally-"advanced" GPU Type/Count) live entirely on Quick
+Start instead, not duplicated anywhere else.
 
 ## Indexed list variables
 

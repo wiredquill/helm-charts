@@ -15,13 +15,14 @@ questions:
 # TAB 1: Quick Start (renders first — Rancher orders tabs by first
 # occurrence in this file)
 # ===========================================================================
-# Model, Enable GPU, and Service Type/LoadBalancer IP below are intentionally
-# duplicated verbatim later in the file under their proper dedicated tab
-# (Resource Configuration / Networking) — see docs/questions-template/README.md,
-# "The 'duplicate variable across two tabs' idiom". Keep both copies of each
-# field byte-for-byte identical (default/type/options/description) if you
-# edit one. Secondary Model / Preload Model Into Memory below, by contrast,
-# exist ONLY here — there's no separate Model Configuration tab.
+# Model and Service Type/LoadBalancer IP below are intentionally duplicated
+# verbatim later in the file under their proper dedicated tab (Networking)
+# — see docs/questions-template/README.md, "The 'duplicate variable across
+# two tabs' idiom". Keep both copies of each field byte-for-byte identical
+# (default/type/options/description) if you edit one. GPU (Enable/Type/
+# Count) and Secondary Model / Preload Model Into Memory, by contrast, exist
+# ONLY here — there's no separate GPU Configuration or Model Configuration
+# tab.
 
 - variable: ollama.ollama.models.pull[0]
   label: "Model"
@@ -36,6 +37,27 @@ questions:
   description: "Enable GPU support for Ollama (NVIDIA or AMD GPU required on the target node)."
   type: "boolean"
   default: true
+  group: "Quick Start"
+
+- variable: ollama.ollama.gpu.type
+  label: "GPU Type"
+  description: "GPU vendor to request resources from."
+  type: "enum"
+  options:
+    - "nvidia"
+    - "amd"
+  default: "nvidia"
+  show_if: "ollama.ollama.gpu.enabled=true"
+  group: "Quick Start"
+
+- variable: ollama.ollama.gpu.number
+  label: "GPU Count"
+  description: "Number of GPUs to allocate."
+  type: "int"
+  min: 1
+  max: 8
+  default: 1
+  show_if: "ollama.ollama.gpu.enabled=true"
   group: "Quick Start"
 
 - variable: ollama.service.type
@@ -208,58 +230,9 @@ questions:
   required: true
 
 # ===========================================================================
-# TAB 4: Resource Configuration
+# TAB 4: Resource Configuration (CPU/memory sizing only — GPU config lives
+# entirely on Quick Start now, not duplicated here)
 # ===========================================================================
-# GPU fields live only here and on Quick Start now (no separate "GPU
-# Configuration" tab) - Enable GPU on Quick Start is the basic toggle, and
-# this is the full GPU config (type/count) nested right under its own
-# Enable GPU, alongside CPU/memory sizing where people naturally look for
-# GPU allocation. Keep this copy of "Enable GPU" in sync with Quick Start's
-# if you edit either (same "duplicate variable across two tabs" idiom).
-- variable: ollama.ollama.gpu.enabled
-  label: "Enable GPU"
-  description: "Enable GPU support for Ollama (NVIDIA or AMD GPU required)."
-  type: "boolean"
-  default: true
-  group: "Resource Configuration"
-
-- variable: ollama.ollama.gpu.type
-  label: "GPU Type"
-  description: "GPU vendor to request resources from."
-  type: "enum"
-  options:
-    - "nvidia"
-    - "amd"
-  default: "nvidia"
-  show_if: "ollama.ollama.gpu.enabled=true"
-  group: "Resource Configuration"
-
-- variable: ollama.ollama.gpu.number
-  label: "GPU Count"
-  description: "Number of GPUs to allocate."
-  type: "int"
-  min: 1
-  max: 8
-  default: 1
-  show_if: "ollama.ollama.gpu.enabled=true"
-  group: "Resource Configuration"
-
-# Visual separator between GPU allocation (above) and CPU/memory sizing
-# (below). Rancher's legacy questions.yaml schema has no native
-# divider/section-header widget - confirmed by grepping every `type:` value
-# across all questions.yaml files in this repo, none exist. This is the
-# common workaround: an inert field with no real default, purely to break
-# up the form visually. It renders as an empty text box with this label,
-# which isn't a true line/rule but is the closest thing this schema offers.
-# Like ollama.showAdvanced, this key has no effect on any template -
-# verified via byte-identical `helm template` output before/after adding it.
-- variable: ollama.resourceSectionDivider
-  label: "───────── CPU / Memory Sizing ─────────"
-  description: "Not a real setting — just a visual break between GPU allocation above and baseline CPU/memory sizing below."
-  type: "string"
-  default: ""
-  group: "Resource Configuration"
-
 - variable: ollama.resources.requests.memory
   label: "Memory Request"
   description: "Memory request for Ollama (enterprise sizing)."

@@ -73,12 +73,6 @@ ollama:
   # template`/`helm install` output either way.
   showAdvanced: false
 
-  # UI-only: a visual section break between GPU and CPU/memory fields on the
-  # Resource Configuration tab (Rancher's questions.yaml schema has no
-  # native divider widget). Not consumed by any template - same no-op
-  # guarantee as showAdvanced above.
-  resourceSectionDivider: ""
-
   # Ollama-specific configuration (nested under ollama section of upstream chart)
   ollama:
     # Port configuration
