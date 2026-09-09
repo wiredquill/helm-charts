@@ -72,6 +72,45 @@ Test for an empty string by leaving nothing after `=`:
 show_if: "ollama.persistence.existingClaim="
 ```
 
+## Basic/Advanced toggle (tab-level show_if)
+
+`show_if` doesn't just hide individual fields — if **every** question in a
+`group` evaluates to hidden, Rancher collapses that tab out of the sidebar
+entirely. This makes a "Basic vs. Advanced" split possible: add a boolean
+toggle on your first-page tab, then apply `show_if: "<path>.showAdvanced=true"`
+to every field in a tab you want hidden by default.
+
+```yaml
+# 1. The toggle (put it on your Quick Start / first tab)
+- variable: showAdvanced
+  label: "Show Advanced Options"
+  description: "Reveals less-common settings across every tab below."
+  type: "boolean"
+  default: false
+  group: "Quick Start"
+
+# 2. Every field in a tab you want fully hidden by default carries the
+#    same condition — once ALL of them evaluate false, the whole tab
+#    disappears from the sidebar, not just the fields.
+- variable: observability.otlpEndpoint
+  type: "string"
+  default: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
+  show_if: "showAdvanced=true"
+  group: "Observability"
+```
+
+For a tab that mixes essential and optional fields (e.g. a "Networking" tab
+where Service Type should always show but Ingress shouldn't), only add the
+condition to the optional fields — the tab stays visible (because some of
+its fields are still shown), but the optional fields inside it reveal
+themselves once the toggle is checked. Combine with an existing `show_if`
+using `&&`, e.g. `show_if: "ingress.enabled=true && showAdvanced=true"`.
+
+See `charts/ollama-suse/questions.yaml` for a worked example: its
+`ollama.showAdvanced` toggle fully hides the Observability and Advanced tabs,
+and partially gates fields within General/Networking/Model
+Configuration/Storage Configuration.
+
 ## Indexed list variables
 
 Rancher supports binding to a specific index of a YAML list via

@@ -67,6 +67,12 @@ ollama:
 
   priorityClassName: ""
 
+  # UI-only: gates the Basic/Advanced toggle in questions.yaml (Quick Start
+  # tab). Not consumed by any template - purely controls which fields/tabs
+  # the Rancher form shows. Safe to leave false; has no effect on `helm
+  # template`/`helm install` output either way.
+  showAdvanced: false
+
   # Ollama-specific configuration (nested under ollama section of upstream chart)
   ollama:
     # Port configuration

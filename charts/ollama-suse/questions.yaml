@@ -17,10 +17,9 @@ questions:
 # ===========================================================================
 # Each field below is intentionally duplicated verbatim later in the file
 # under its proper dedicated tab (Model Configuration / GPU Configuration /
-# Service Configuration) — see docs/questions-template/README.md, "The
-# 'duplicate variable across two tabs' idiom". Keep both copies of each
-# field byte-for-byte identical (default/type/options/description) if you
-# edit one.
+# Networking) — see docs/questions-template/README.md, "The 'duplicate
+# variable across two tabs' idiom". Keep both copies of each field
+# byte-for-byte identical (default/type/options/description) if you edit one.
 
 - variable: ollama.ollama.models.pull[0]
   label: "Model"
@@ -56,6 +55,19 @@ questions:
   show_if: "ollama.service.type=LoadBalancer"
   group: "Quick Start"
 
+# Basic/Advanced toggle: when left unchecked, every field below tagged
+# `show_if: "...ollama.showAdvanced=true..."` is hidden, and any TAB whose
+# every field carries that condition (Observability, Advanced) is hidden
+# from the sidebar entirely — Rancher collapses a tab once all of its
+# questions evaluate to hidden. See docs/questions-template/README.md,
+# "Basic/Advanced toggle (tab-level show_if)".
+- variable: ollama.showAdvanced
+  label: "Show Advanced Options"
+  description: "Reveals less-common settings (image tag/registry details, NodePort/Ingress, secondary models, storage class, Observability, and Advanced tabs) across every tab below. Leave unchecked for a minimal, guided setup."
+  type: "boolean"
+  default: false
+  group: "Quick Start"
+
 # ===========================================================================
 # TAB 2: General
 # ===========================================================================
@@ -72,6 +84,7 @@ questions:
   description: "Ollama image tag to deploy."
   type: "string"
   default: "0.21.2"
+  show_if: "ollama.showAdvanced=true"
   group: "General"
 
 - variable: ollama.image.pullPolicy
@@ -83,6 +96,7 @@ questions:
     - "Always"
     - "Never"
   default: "IfNotPresent"
+  show_if: "ollama.showAdvanced=true"
   group: "General"
 
 # GOTCHA: do NOT bind a plain `type: string` field straight to
@@ -96,10 +110,13 @@ questions:
   description: "Name of an existing Kubernetes Secret for pulling from a private/authenticated registry. Leave empty if registry.suse.com is reachable without authentication in your environment."
   type: "string"
   default: ""
+  show_if: "ollama.showAdvanced=true"
   group: "General"
 
 # ===========================================================================
-# TAB 3: Service Configuration
+# TAB 3: Networking (Service + Ingress, combined per request — the survey of
+# this repo found several charts, e.g. ollama-upstream, already pair
+# service exposure and ingress under one "Networking" tab)
 # ===========================================================================
 - variable: ollama.service.type
   label: "Service Type"
@@ -110,17 +127,17 @@ questions:
     - "NodePort"
     - "LoadBalancer"
   default: "ClusterIP"
-  group: "Service Configuration"
+  group: "Networking"
 
 - variable: ollama.service.nodePort
   label: "Node Port"
-  description: "Static port (30000-32767) to expose on every node. Only used when Service Type is NodePort."
+  description: "Static port (30000-32767) to expose on every node. Only used when Service Type is NodePort. A working default is already set, so this is only needed to pin a specific port."
   type: "int"
   min: 30000
   max: 32767
   default: 31434
-  show_if: "ollama.service.type=NodePort"
-  group: "Service Configuration"
+  show_if: "ollama.service.type=NodePort && ollama.showAdvanced=true"
+  group: "Networking"
 
 - variable: ollama.service.loadBalancerIP
   label: "Load Balancer IP"
@@ -128,7 +145,38 @@ questions:
   type: "string"
   default: ""
   show_if: "ollama.service.type=LoadBalancer"
-  group: "Service Configuration"
+  group: "Networking"
+
+# Ingress is entirely gated behind the Advanced toggle (see Quick Start) —
+# rarely needed for a first deploy since Service already exposes Ollama.
+- variable: ollama.ingress.enabled
+  label: "Enable Ingress"
+  description: "Expose Ollama via a Kubernetes Ingress resource."
+  type: "boolean"
+  default: false
+  show_if: "ollama.showAdvanced=true"
+  group: "Networking"
+
+- variable: ollama.ingress.className
+  label: "Ingress Class"
+  description: "IngressClass to use (e.g. 'nginx', 'traefik'). Leave empty to use the cluster default."
+  type: "string"
+  default: ""
+  show_if: "ollama.ingress.enabled=true && ollama.showAdvanced=true"
+  group: "Networking"
+
+# NOTE: the vendored ollama chart's ingress.yaml ranges over
+# .Values.ingress.hosts (a LIST of {host, paths[]} objects), not a flat
+# ingress.host string — confirmed by reading
+# charts/ollama-suse/charts/ollama/templates/ingress.yaml directly.
+- variable: ollama.ingress.hosts[0].host
+  label: "Ingress Hostname"
+  description: "Hostname to route to this Ollama instance (e.g. 'ollama.example.com')."
+  type: "hostname"
+  default: ""
+  show_if: "ollama.ingress.enabled=true && ollama.showAdvanced=true"
+  group: "Networking"
+  required: true
 
 # ===========================================================================
 # TAB 4: GPU Configuration
@@ -164,6 +212,38 @@ questions:
 # ===========================================================================
 # TAB 5: Resource Configuration
 # ===========================================================================
+# GPU fields duplicated from GPU Configuration (same "duplicate variable
+# across two tabs" idiom as Quick Start) so GPU allocation sits alongside
+# CPU/memory sizing where people naturally look for it. Keep in sync with
+# the GPU Configuration tab below if you edit either copy.
+- variable: ollama.ollama.gpu.enabled
+  label: "Enable GPU"
+  description: "Enable GPU support for Ollama (NVIDIA or AMD GPU required)."
+  type: "boolean"
+  default: true
+  group: "Resource Configuration"
+
+- variable: ollama.ollama.gpu.type
+  label: "GPU Type"
+  description: "GPU vendor to request resources from."
+  type: "enum"
+  options:
+    - "nvidia"
+    - "amd"
+  default: "nvidia"
+  show_if: "ollama.ollama.gpu.enabled=true"
+  group: "Resource Configuration"
+
+- variable: ollama.ollama.gpu.number
+  label: "GPU Count"
+  description: "Number of GPUs to allocate."
+  type: "int"
+  min: 1
+  max: 8
+  default: 1
+  show_if: "ollama.ollama.gpu.enabled=true"
+  group: "Resource Configuration"
+
 - variable: ollama.resources.requests.memory
   label: "Memory Request"
   description: "Memory request for Ollama (enterprise sizing)."
@@ -212,6 +292,7 @@ questions:
   description: "Optional second model to pull on startup. Leave empty to skip."
   type: "string"
   default: ""
+  show_if: "ollama.showAdvanced=true"
   group: "Model Configuration"
 
 - variable: ollama.ollama.models.run[0]
@@ -219,6 +300,7 @@ questions:
   description: "Optional: a model name to keep loaded in memory at startup (avoids a cold-start delay on first request). Usually the same as Primary Model above. Leave empty to load models on-demand only."
   type: "string"
   default: ""
+  show_if: "ollama.showAdvanced=true"
   group: "Model Configuration"
 
 # ===========================================================================
@@ -244,42 +326,15 @@ questions:
   description: "Storage class for persistent volume."
   type: "storageclass"
   default: "suse-csi"
-  show_if: "ollama.persistentVolume.enabled=true"
+  show_if: "ollama.persistentVolume.enabled=true && ollama.showAdvanced=true"
   group: "Storage Configuration"
 
 # ===========================================================================
-# TAB 8: Ingress Configuration
-# ===========================================================================
-- variable: ollama.ingress.enabled
-  label: "Enable Ingress"
-  description: "Expose Ollama via a Kubernetes Ingress resource."
-  type: "boolean"
-  default: false
-  group: "Ingress Configuration"
-
-- variable: ollama.ingress.className
-  label: "Ingress Class"
-  description: "IngressClass to use (e.g. 'nginx', 'traefik'). Leave empty to use the cluster default."
-  type: "string"
-  default: ""
-  show_if: "ollama.ingress.enabled=true"
-  group: "Ingress Configuration"
-
-# NOTE: the vendored ollama chart's ingress.yaml ranges over
-# .Values.ingress.hosts (a LIST of {host, paths[]} objects), not a flat
-# ingress.host string — confirmed by reading
-# charts/ollama-suse/charts/ollama/templates/ingress.yaml directly.
-- variable: ollama.ingress.hosts[0].host
-  label: "Ingress Hostname"
-  description: "Hostname to route to this Ollama instance (e.g. 'ollama.example.com')."
-  type: "hostname"
-  default: ""
-  show_if: "ollama.ingress.enabled=true"
-  group: "Ingress Configuration"
-  required: true
-
-# ===========================================================================
-# TAB 9: Observability
+# TAB 8: Observability — entirely gated behind the Advanced toggle (see
+# Quick Start): every question in this group carries
+# show_if: "...ollama.showAdvanced=true", so Rancher hides the whole
+# "Observability" tab from the sidebar until the box is checked (per
+# docs/questions-template/README.md, "Basic/Advanced toggle").
 # ===========================================================================
 # SIMPLE pattern (matches the SUSE AI Factory hr-assistant demo app's
 # OpenTelemetry setup). CAVEAT: the vendored `ollama` chart has no built-in
@@ -300,6 +355,7 @@ questions:
   description: "OpenTelemetry collector endpoint (include http:// and port). NOTE: the stock Ollama binary does not natively export OTel telemetry — this sets the OTEL_EXPORTER_OTLP_ENDPOINT env var for future use by an exporter sidecar or an updated image."
   type: "string"
   default: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
+  show_if: "ollama.showAdvanced=true"
   group: "Observability"
 
 # Deliberately `type: enum` with string options, NOT `type: boolean`: a
@@ -315,16 +371,18 @@ questions:
     - "false"
     - "true"
   default: "false"
+  show_if: "ollama.showAdvanced=true"
   group: "Observability"
 
 # ===========================================================================
-# TAB 10: Advanced
+# TAB 9: Advanced — also entirely gated behind the toggle, same mechanism.
 # ===========================================================================
 - variable: ollama.priorityClassName
   label: "Priority Class Name"
   description: "Kubernetes PriorityClass to assign to the Ollama pod. Leave empty to use the cluster default."
   type: "string"
   default: ""
+  show_if: "ollama.showAdvanced=true"
   group: "Advanced"
 
 # NOTE: nodeSelector/tolerations are deliberately NOT exposed here. The
