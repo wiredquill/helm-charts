@@ -237,6 +237,35 @@ entries:
       suse.com/registry: SUSE Application Collection
     apiVersion: v2
     appVersion: 0.21.2
+    created: "2026-09-09T21:09:23.576115457Z"
+    dependencies:
+    - name: ollama
+      repository: file://charts/ollama
+      version: 1.76.0
+    description: Wrapper chart for SUSE Application Collection Ollama with custom
+      questions.yaml
+    digest: 52909a197d6d4a4678342eeffc233fe54c3c99e239d8e5b89931edb342c9bb6b
+    keywords:
+    - ollama
+    - llm
+    - ai
+    - machine-learning
+    - suse
+    - enterprise
+    maintainers:
+    - email: ai-demos@example.com
+      name: AI Demos Team
+    name: ollama-suse
+    type: application
+    urls:
+    - ollama-suse-0.1.15.tgz
+    version: 0.1.15
+  - annotations:
+      category: MachineLearning
+      suse.com/enterprise: "true"
+      suse.com/registry: SUSE Application Collection
+    apiVersion: v2
+    appVersion: 0.21.2
     created: "2026-09-09T20:37:09.024257185Z"
     dependencies:
     - name: ollama
@@ -598,4 +627,4 @@ entries:
     urls:
     - https://wiredquill.github.io/helm-charts/stable-diffusion-0.1.6.tgz
     version: 0.1.6
-generated: "2026-09-09T20:37:09.024339388Z"
+generated: "2026-09-09T21:09:23.576150787Z"
