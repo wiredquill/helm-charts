@@ -92,11 +92,11 @@ to every field in a tab you want hidden by default.
 # 2. Every field in a tab you want fully hidden by default carries the
 #    same condition — once ALL of them evaluate false, the whole tab
 #    disappears from the sidebar, not just the fields.
-- variable: observability.otlpEndpoint
+- variable: priorityClassName
   type: "string"
-  default: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
+  default: ""
   show_if: "showAdvanced=true"
-  group: "Observability"
+  group: "Advanced"
 ```
 
 For a tab that mixes essential and optional fields (e.g. a "Networking" tab
@@ -106,10 +106,16 @@ its fields are still shown), but the optional fields inside it reveal
 themselves once the toggle is checked. Combine with an existing `show_if`
 using `&&`, e.g. `show_if: "ingress.enabled=true && showAdvanced=true"`.
 
+Don't gate everything reflexively — decide per tab whether it's genuinely
+optional. Observability, for instance, is deliberately left ungated in the
+`ollama-suse` example below: SUSE AI Factory deployments are expected to
+have OpenTelemetry configured by default, so hiding it behind "Advanced"
+would bury a setting most installs actually need.
+
 See `charts/ollama-suse/questions.yaml` for a worked example: its
-`ollama.showAdvanced` toggle fully hides the Observability and Advanced tabs,
-and partially gates fields within General/Networking/Model
-Configuration/Storage Configuration.
+`ollama.showAdvanced` toggle fully hides the Advanced tab, and partially
+gates fields within Image/Networking/Model Configuration/Storage
+Configuration — while Observability stays visible unconditionally.
 
 ## Indexed list variables
 

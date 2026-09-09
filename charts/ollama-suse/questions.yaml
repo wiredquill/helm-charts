@@ -67,26 +67,26 @@ questions:
 
 # Basic/Advanced toggle: when left unchecked, every field below tagged
 # `show_if: "...ollama.showAdvanced=true..."` is hidden, and any TAB whose
-# every field carries that condition (Observability, Advanced) is hidden
+# every field carries that condition (currently just Advanced) is hidden
 # from the sidebar entirely — Rancher collapses a tab once all of its
 # questions evaluate to hidden. See docs/questions-template/README.md,
 # "Basic/Advanced toggle (tab-level show_if)".
 - variable: ollama.showAdvanced
   label: "Show Advanced Options"
-  description: "Reveals less-common settings (image tag/registry details, Ingress, secondary models, storage class, Observability, and Advanced tabs) across every tab below. Leave unchecked for a minimal, guided setup."
+  description: "Reveals less-common settings (image tag/registry details, Ingress, secondary models, storage class, and the Advanced tab) across every tab below. Leave unchecked for a minimal, guided setup. Observability stays visible regardless — it's not considered advanced."
   type: "boolean"
   default: false
   group: "Quick Start"
 
 # ===========================================================================
-# TAB 2: General
+# TAB 2: Image
 # ===========================================================================
 - variable: ollama.image.repository
   label: "Image Repository"
   description: "Container image repository for Ollama (SUSE Application Collection)."
   type: "string"
   default: "registry.suse.com/bci/ollama"
-  group: "General"
+  group: "Image"
   required: true
 
 - variable: ollama.image.tag
@@ -95,7 +95,7 @@ questions:
   type: "string"
   default: "0.21.2"
   show_if: "ollama.showAdvanced=true"
-  group: "General"
+  group: "Image"
 
 - variable: ollama.image.pullPolicy
   label: "Image Pull Policy"
@@ -107,7 +107,7 @@ questions:
     - "Never"
   default: "IfNotPresent"
   show_if: "ollama.showAdvanced=true"
-  group: "General"
+  group: "Image"
 
 # GOTCHA: do NOT bind a plain `type: string` field straight to
 # `ollama.imagePullSecrets` — the vendored subchart's _helpers.tpl expects
@@ -121,7 +121,7 @@ questions:
   type: "string"
   default: ""
   show_if: "ollama.showAdvanced=true"
-  group: "General"
+  group: "Image"
 
 # ===========================================================================
 # TAB 3: Networking (Service + Ingress, combined per request — the survey of
@@ -340,11 +340,10 @@ questions:
   group: "Storage Configuration"
 
 # ===========================================================================
-# TAB 8: Observability — entirely gated behind the Advanced toggle (see
-# Quick Start): every question in this group carries
-# show_if: "...ollama.showAdvanced=true", so Rancher hides the whole
-# "Observability" tab from the sidebar until the box is checked (per
-# docs/questions-template/README.md, "Basic/Advanced toggle").
+# TAB 8: Observability — always visible, NOT gated behind the Advanced
+# toggle. SUSE AI Factory deployments are expected to have OpenTelemetry
+# wired in by default, so this tab stays on the front page of tabs
+# regardless of Show Advanced Options.
 # ===========================================================================
 # SIMPLE pattern (matches the SUSE AI Factory hr-assistant demo app's
 # OpenTelemetry setup). CAVEAT: the vendored `ollama` chart has no built-in
@@ -360,12 +359,23 @@ questions:
 # metrics/tracing pipeline for Ollama would require either an updated image
 # with built-in OTel support or a separately-deployed OTel Collector
 # scraping Ollama/GPU exporters — both out of scope for this questions.yaml.
+#
+# The endpoint URL follows a fixed, predictable convention rather than being
+# arbitrary: SUSE AI Factory's OpenTelemetry Collector Helm release is always
+# reachable at the service name `opentelemetry-collector` on port 4318, in
+# whatever namespace it was installed into — this is exactly what
+# hr-assistant's own live deployment uses
+# (http://opentelemetry-collector.observability.svc.cluster.local:4318, per
+# its current-deployment.yaml). So in practice the ONLY thing that varies
+# between clusters is the namespace segment; you don't need to know the pod
+# name, service port, or anything else about how SUSE Observability was
+# deployed — just which namespace it landed in (commonly "observability",
+# the default below).
 - variable: ollama.extraEnv[0].value
   label: "OTLP Endpoint"
-  description: "OpenTelemetry collector endpoint (include http:// and port). NOTE: the stock Ollama binary does not natively export OTel telemetry — this sets the OTEL_EXPORTER_OTLP_ENDPOINT env var for future use by an exporter sidecar or an updated image."
+  description: "OpenTelemetry collector endpoint. Follows the standard SUSE AI Factory convention http://opentelemetry-collector.<namespace>.svc.cluster.local:4318 — if your cluster's OTel Collector isn't in the 'observability' namespace, replace just that segment with the right one; everything else about this URL is fixed. NOTE: the stock Ollama binary does not natively export OTel telemetry — this sets the OTEL_EXPORTER_OTLP_ENDPOINT env var for future use by an exporter sidecar or an updated image."
   type: "string"
   default: "http://opentelemetry-collector.observability.svc.cluster.local:4318"
-  show_if: "ollama.showAdvanced=true"
   group: "Observability"
 
 # Deliberately `type: enum` with string options, NOT `type: boolean`: a
@@ -381,7 +391,6 @@ questions:
     - "false"
     - "true"
   default: "false"
-  show_if: "ollama.showAdvanced=true"
   group: "Observability"
 
 # ===========================================================================
