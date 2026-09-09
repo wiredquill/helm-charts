@@ -75,7 +75,7 @@ questions:
 # "Basic/Advanced toggle (tab-level show_if)".
 - variable: ollama.showAdvanced
   label: "Show Advanced Options"
-  description: "Reveals less-common settings (image tag/registry details, Ingress, secondary models, storage class, and the Advanced tab) across every tab below. Leave unchecked for a minimal, guided setup. Observability stays visible regardless — it's not considered advanced."
+  description: "Reveals less-common settings (image tag/registry details, secondary models, storage class, and the Advanced tab) across every tab below. Leave unchecked for a minimal, guided setup. Observability and Ingress stay visible regardless — neither is considered advanced."
   type: "boolean"
   default: false
   group: "Quick Start"
@@ -180,14 +180,11 @@ questions:
   show_if: "ollama.service.type=LoadBalancer"
   group: "Networking"
 
-# Ingress is entirely gated behind the Advanced toggle (see Quick Start) —
-# rarely needed for a first deploy since Service already exposes Ollama.
 - variable: ollama.ingress.enabled
   label: "Enable Ingress"
   description: "Expose Ollama via a Kubernetes Ingress resource."
   type: "boolean"
   default: false
-  show_if: "ollama.showAdvanced=true"
   group: "Networking"
 
 - variable: ollama.ingress.className
@@ -195,7 +192,7 @@ questions:
   description: "IngressClass to use (e.g. 'nginx', 'traefik'). Leave empty to use the cluster default."
   type: "string"
   default: ""
-  show_if: "ollama.ingress.enabled=true && ollama.showAdvanced=true"
+  show_if: "ollama.ingress.enabled=true"
   group: "Networking"
 
 # NOTE: the vendored ollama chart's ingress.yaml ranges over
@@ -207,7 +204,7 @@ questions:
   description: "Hostname to route to this Ollama instance (e.g. 'ollama.example.com')."
   type: "hostname"
   default: ""
-  show_if: "ollama.ingress.enabled=true && ollama.showAdvanced=true"
+  show_if: "ollama.ingress.enabled=true"
   group: "Networking"
   required: true
 
