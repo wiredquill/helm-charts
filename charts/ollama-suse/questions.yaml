@@ -75,7 +75,7 @@ questions:
 # "Basic/Advanced toggle (tab-level show_if)".
 - variable: ollama.showAdvanced
   label: "Show Advanced Options"
-  description: "Reveals less-common settings (image tag/registry details, secondary models, storage class, and the Advanced tab) across every tab below. Leave unchecked for a minimal, guided setup. Observability and Ingress stay visible regardless — neither is considered advanced."
+  description: "Reveals less-common settings (image pull policy/pull secret, secondary models, and the Advanced tab) across every tab below. Leave unchecked for a minimal, guided setup. Observability, Ingress, Image Tag, and Storage Class stay visible regardless — none of those are considered advanced."
   type: "boolean"
   default: false
   group: "Quick Start"
@@ -117,7 +117,6 @@ questions:
   description: "Ollama image tag to deploy."
   type: "string"
   default: "0.21.2"
-  show_if: "ollama.showAdvanced=true"
   group: "Image"
 
 - variable: ollama.image.pullPolicy
@@ -245,6 +244,22 @@ questions:
   show_if: "ollama.ollama.gpu.enabled=true"
   group: "Resource Configuration"
 
+# Visual separator between GPU allocation (above) and CPU/memory sizing
+# (below). Rancher's legacy questions.yaml schema has no native
+# divider/section-header widget - confirmed by grepping every `type:` value
+# across all questions.yaml files in this repo, none exist. This is the
+# common workaround: an inert field with no real default, purely to break
+# up the form visually. It renders as an empty text box with this label,
+# which isn't a true line/rule but is the closest thing this schema offers.
+# Like ollama.showAdvanced, this key has no effect on any template -
+# verified via byte-identical `helm template` output before/after adding it.
+- variable: ollama.resourceSectionDivider
+  label: "───────── CPU / Memory Sizing ─────────"
+  description: "Not a real setting — just a visual break between GPU allocation above and baseline CPU/memory sizing below."
+  type: "string"
+  default: ""
+  group: "Resource Configuration"
+
 - variable: ollama.resources.requests.memory
   label: "Memory Request"
   description: "Memory request for Ollama (enterprise sizing)."
@@ -296,7 +311,7 @@ questions:
   description: "Storage class for persistent volume."
   type: "storageclass"
   default: "suse-csi"
-  show_if: "ollama.persistentVolume.enabled=true && ollama.showAdvanced=true"
+  show_if: "ollama.persistentVolume.enabled=true"
   group: "Storage Configuration"
 
 # ===========================================================================

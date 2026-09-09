@@ -17,7 +17,7 @@ ollama:
 
   # Global passthrough into the vendored subchart. Must stay a list of
   # strings/maps here - the subchart's imagePullSecrets helper converts each
-  # string entry into {name: <string>} (see questions.yaml General tab).
+  # string entry into {name: <string>} (see questions.yaml Image tab).
   global:
     imagePullSecrets: []
 
@@ -72,6 +72,12 @@ ollama:
   # the Rancher form shows. Safe to leave false; has no effect on `helm
   # template`/`helm install` output either way.
   showAdvanced: false
+
+  # UI-only: a visual section break between GPU and CPU/memory fields on the
+  # Resource Configuration tab (Rancher's questions.yaml schema has no
+  # native divider widget). Not consumed by any template - same no-op
+  # guarantee as showAdvanced above.
+  resourceSectionDivider: ""
 
   # Ollama-specific configuration (nested under ollama section of upstream chart)
   ollama:
