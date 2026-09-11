@@ -599,6 +599,18 @@ entries:
     urls:
     - https://wiredquill.github.io/helm-charts/ollama-webui-upstream-0.1.3.tgz
     version: 0.1.3
+  questions-demo:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2026-09-11T19:08:42.853182123Z"
+    description: Minimal questions.yaml example (Service Type + Ingress + Storage
+      Class show_if demo) — for screenshots, safe to delete
+    digest: b2cd23f9bee242c6708efa6b8a48fcd37f0d72502f9194f5cb0adc860650e4b2
+    name: questions-demo
+    type: application
+    urls:
+    - questions-demo-0.1.0.tgz
+    version: 0.1.0
   rancher-ai-ollama:
   - annotations:
       category: MachineLearning
@@ -743,4 +755,4 @@ entries:
     urls:
     - https://wiredquill.github.io/helm-charts/stable-diffusion-0.1.6.tgz
     version: 0.1.6
-generated: "2026-09-09T22:22:39.180102199Z"
+generated: "2026-09-11T19:08:42.853275279Z"
