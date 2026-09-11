@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-questions-demo
+data:
+  serviceType: {{ .Values.service.type | quote }}
+  serviceNodePort: {{ .Values.service.nodePort | quote }}
+  serviceLoadBalancerIP: {{ .Values.service.loadBalancerIP | quote }}
+  ingressEnabled: {{ .Values.ingress.enabled | quote }}
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  ingressHost: {{ .Values.ingress.host | quote }}
+  storageClassName: {{ .Values.persistence.storageClassName | quote }}

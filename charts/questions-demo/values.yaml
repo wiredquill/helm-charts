@@ -1,0 +1,14 @@
+# Minimal demo chart — just enough to install and take a Rancher UI
+# screenshot of the show_if idioms. Not meant to be a real deployment.
+service:
+  type: ClusterIP
+  nodePort: 30080
+  loadBalancerIP: ""
+
+ingress:
+  enabled: false
+  className: ""
+  host: ""
+
+persistence:
+  storageClassName: ""

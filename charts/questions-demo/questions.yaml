@@ -1,0 +1,59 @@
+questions:
+- variable: service.type
+  label: "Service Type"
+  description: "Kubernetes service type."
+  type: "enum"
+  options:
+    - "ClusterIP"
+    - "NodePort"
+    - "LoadBalancer"
+  default: "ClusterIP"
+  group: "General"
+
+- variable: service.nodePort
+  label: "Node Port"
+  description: "Static port (30000-32767) to expose on every node. Only used when Service Type is NodePort."
+  type: "int"
+  min: 30000
+  max: 32767
+  default: 30080
+  show_if: "service.type=NodePort"
+  group: "General"
+
+- variable: service.loadBalancerIP
+  label: "Load Balancer IP"
+  description: "Static IP address to assign to the LoadBalancer. Leave empty for automatic assignment."
+  type: "string"
+  default: ""
+  show_if: "service.type=LoadBalancer"
+  group: "General"
+
+- variable: ingress.enabled
+  label: "Enable Ingress"
+  description: "Expose this app via a Kubernetes Ingress resource."
+  type: "boolean"
+  default: false
+  group: "General"
+
+- variable: ingress.className
+  label: "Ingress Class"
+  description: "IngressClass to use (e.g. 'nginx', 'traefik'). Leave empty to use the cluster default."
+  type: "string"
+  default: ""
+  show_if: "ingress.enabled=true"
+  group: "General"
+
+- variable: ingress.host
+  label: "Ingress Hostname"
+  description: "Hostname to route to this app (e.g. 'app.example.com')."
+  type: "hostname"
+  default: ""
+  show_if: "ingress.enabled=true"
+  group: "General"
+
+- variable: persistence.storageClassName
+  label: "Storage Class"
+  description: "Storage class for persistent volumes."
+  type: "storageclass"
+  default: ""
+  group: "General"

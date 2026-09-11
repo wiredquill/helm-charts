@@ -1,0 +1,6 @@
+apiVersion: v2
+name: questions-demo
+description: Minimal questions.yaml example (Service Type + Ingress + Storage Class show_if demo) — for screenshots, safe to delete
+type: application
+version: 0.1.0
+appVersion: "1.0"
