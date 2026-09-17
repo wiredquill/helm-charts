@@ -47,9 +47,11 @@ kubectl -n comfyui create secret generic comfyui-video-lab-hf \
   --from-literal=HF_TOKEN="<hf read token, LTX-2.5 license accepted>"
 
 helm install lab ./charts/comfyui-video-lab -n comfyui \
-  --set image.repository=ghcr.io/wiredquill/comfyui-video-lab \
-  --set image.tag=40c4fcdf \
   --set ingress.host=<your host>
+# image defaults to the locally-loaded  docker.io/library/comfyui-video-lab:40c4fcdf
+# (pullPolicy IfNotPresent). To pull from a registry instead:
+#   --set image.repository=ghcr.io/wiredquill/comfyui-video-lab \
+#   --set 'imagePullSecrets[0].name=ghcr-wiredquill'
 ```
 
 First start: `kubectl -n comfyui logs -l app.kubernetes.io/name=comfyui-video-lab -c download-models -f`

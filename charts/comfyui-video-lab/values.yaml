@@ -4,9 +4,17 @@
 # =============================================================================
 # Image (pinned runtime: ComfyUI v0.35.0 + Manager 4.2.2 + 6 pinned node packs
 # + 7 baked workflow blueprints). Built from /data/comfyui-video-lab/image.
+#
+# The runtime image was built once and loaded straight into the 4090 node's
+# containerd (k8s.io namespace) as  docker.io/library/comfyui-video-lab:40c4fcdf
+#  (GHCR push is gated on a packages:write token, so we ship it locally).
+# The short-name repository below resolves to that exact ref, and
+# pullPolicy: IfNotPresent makes the kubelet use the local image (no pull).
+# To pull from a registry instead, set repository to e.g.
+#  ghcr.io/wiredquill/comfyui-video-lab  +  an imagePullSecrets entry.
 # =============================================================================
 image:
-  repository: ghcr.io/wiredquill/comfyui-video-lab
+  repository: comfyui-video-lab        # short name -> docker.io/library/...
   tag: "40c4fcdf"   # = ComfyUI commit 40c4fcdf (v0.35.0). Never use "latest".
   pullPolicy: IfNotPresent
 
