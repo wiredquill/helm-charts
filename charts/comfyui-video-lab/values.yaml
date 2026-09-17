@@ -10,8 +10,8 @@ image:
   tag: "40c4fcdf"   # = ComfyUI commit 40c4fcdf (v0.35.0). Never use "latest".
   pullPolicy: IfNotPresent
 
-imagePullSecrets:
-  - name: ghcr-wiredquill
+imagePullSecrets: []
+#   - name: ghcr-wiredquill   # only needed when pulling the image from GHCR
 
 # =============================================================================
 # GPU — one whole card, exclusive. No time-slicing of interactive jobs: this
