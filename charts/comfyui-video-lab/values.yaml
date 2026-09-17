@@ -18,6 +18,14 @@ image:
   tag: "40c4fcdf"   # = ComfyUI commit 40c4fcdf (v0.35.0). Never use "latest".
   pullPolicy: IfNotPresent
 
+# =============================================================================
+# Model-downloader init container. Uses a cached stdlib-only python image so no
+# extra pull is needed on first start. download_models.py needs only stdlib.
+# =============================================================================
+init:
+  image: registry.suse.com/bci/python:3.11   # cached on the node; no pull needed
+  imagePullPolicy: IfNotPresent
+
 imagePullSecrets: []
 #   - name: ghcr-wiredquill   # only needed when pulling the image from GHCR
 
@@ -34,16 +42,22 @@ gpu:
 
 # =============================================================================
 # Worker resources. Node ai-docker: 10 cores, 62.8 GiB allocatable RAM.
-# Floor per spec is 64 GB; we request 60 GiB to stay schedulable on the node
-# while leaving ~3 GiB for the OS/kubelet.
+# Other workloads on the node (hr-assistant-vllm stack ~21Gi by day) leave
+# ~37Gi free during the day. The user unloads that workload before enabling
+# this at night, so the whole card + RAM becomes available then.
+#
+# Requests are set to fit AFTER the day-workload is unloaded: 56 GiB request
+# leaves ~6 GiB for OS/kubelet/system pods on the 62.8 GiB node. CPU 8/10.
+# The spec floor is 64 GB; 56 GiB is the maximum that stays schedulable on
+# this 62.8 GiB node with headroom. If the node gets more RAM, raise it.
 # =============================================================================
 resources:
   requests:
     cpu: "8"
-    memory: 60Gi
+    memory: 56Gi
   limits:
     cpu: "8"
-    memory: 62Gi
+    memory: 60Gi
 
 # =============================================================================
 # Persistence — ONE fast local PVC holds models/input/output/user (+ temp).

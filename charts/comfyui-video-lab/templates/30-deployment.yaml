@@ -32,9 +32,9 @@ spec:
       # No GPU needed here. Idempotent + resumable; safe to re-run on upgrades.
       initContainers:
         - name: download-models
-          image: python:3.11-alpine
-          imagePullPolicy: IfNotPresent
-          command: ["python", "/opt/download/download_models.py"]
+          image: "{{ .Values.init.image }}"
+          imagePullPolicy: {{ .Values.init.imagePullPolicy }}
+          command: ["python3", "/opt/download/download_models.py"]
           env:
             - name: COMFY_STORE
               value: /comfyui-store
