@@ -1,0 +1,27 @@
+apiVersion: v2
+name: comfyui-video-lab
+description: >-
+  Browser-accessible, persistent ComfyUI Video Lab for LTX-2.5 + Wan 2.2 on a
+  single RTX 4090. Pinned runtime (ComfyUI v0.35.0 + Manager 4.2.2 + six pinned
+  custom-node packs), seven baked workflow templates, one whole GPU, one
+  persistent store for models/input/output/user.
+type: application
+version: 0.1.0
+appVersion: "0.35.0"
+keywords:
+  - ai
+  - video-generation
+  - comfyui
+  - ltx-2.5
+  - wan-2.2
+  - nvidia
+  - gpu
+maintainers:
+  - name: wiredquill
+    email: wiredquill@users.noreply.github.com
+home: https://github.com/wiredquill/ai-demos
+sources:
+  - https://github.com/Comfy-Org/ComfyUI
+  - https://github.com/Comfy-Org/ComfyUI-Manager
+  - https://huggingface.co/Lightricks/LTX-2.5
+  - https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged

@@ -1,0 +1,30 @@
+ComfyUI Video Lab — {{ .Chart.Name }} {{ .Chart.Version }}
+================================================================
+
+Namespace:      {{ .Release.Namespace }}
+GPU:            {{ .Values.gpu.count }} x {{ .Values.gpu.resourceName }} (runtime {{ .Values.gpu.runtimeClassName }})
+Image:          {{ .Values.image.repository }}:{{ .Values.image.tag }} (pinned)
+Store PVC:      {{ .Values.storage.existingClaim | default (printf "%s-store" (include "comfyui-video-lab.fullname" .)) }} ({{ .Values.storage.size }})
+
+1. First start: init container downloads ~139 GB of models (LTX-2.5 + Wan 2.2).
+   Watch progress:
+     kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name=comfyui-video-lab -c download-models -f
+   This runs ONCE; afterwards it no-ops.
+
+2. When the pod is ready:
+     kubectl -n {{ .Release.Namespace }} get pods
+   {{- if .Values.ingress.enabled }}
+
+   Browse: https://{{ .Values.ingress.host }}/  (if TLS is configured)
+   {{- end }}
+   Or:
+     kubectl -n {{ .Release.Namespace }} port-forward svc/{{ include "comfyui-video-lab.fullname" . }} 8188:8188
+     http://localhost:8188/
+
+3. Load a template from the Blueprints panel: "Video Lab - <model> - <preset>".
+   7 are baked in: LTX 2.5 Fast / Experimental, Wan fast previz, Wan 14B T2V,
+   Wan 14B I2V, Wan first/last frame, Wan split-denoise.
+
+4. Nightly operation: unload the other GPU workload on the node so this pod
+   has the whole card; the pod requests 1 whole nvidia.com/gpu (no
+   time-sharing by design).

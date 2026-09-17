@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "comfyui-video-lab.fullname" . }}
+  labels:
+    {{- include "comfyui-video-lab.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate   # single GPU + RWO store: never run two pods side by side
+  selector:
+    matchLabels:
+      {{- include "comfyui-video-lab.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "comfyui-video-lab.labels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.gpu.enabled }}
+      runtimeClassName: {{ .Values.gpu.runtimeClassName }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      # Init: download the pinned model set into the persistent store.
+      # No GPU needed here. Idempotent + resumable; safe to re-run on upgrades.
+      initContainers:
+        - name: download-models
+          image: python:3.11-alpine
+          imagePullPolicy: IfNotPresent
+          command: ["python", "/opt/download/download_models.py"]
+          env:
+            - name: COMFY_STORE
+              value: /comfyui-store
+            - name: COMFY_MANIFEST
+              value: /opt/manifest/manifest.txt
+            {{- if .Values.models.ltx25.enabled }}
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.hf.token }}
+                  name: {{ include "comfyui-video-lab.fullname" . }}-hf
+                  {{- else }}
+                  name: {{ .Values.hf.existingSecret }}
+                  {{- end }}
+                  key: HF_TOKEN
+            {{- end }}
+          resources:
+            requests:
+              cpu: "2"
+              memory: 2Gi
+            limits:
+              memory: 4Gi
+          volumeMounts:
+            - name: store
+              mountPath: /comfyui-store
+            - name: manifest
+              mountPath: /opt/manifest
+            - name: downloader
+              mountPath: /opt/download
+      containers:
+        - name: comfyui
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8188
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /system_stats
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /system_stats
+              port: http
+            initialDelaySeconds: 180
+            periodSeconds: 30
+          resources:
+            requests:
+              {{- toYaml .Values.resources.requests | nindent 14 }}
+            limits:
+              {{- $lim := deepCopy .Values.resources.limits }}
+              {{- if .Values.gpu.enabled }}
+              {{- $lim = merge $lim (dict .Values.gpu.resourceName .Values.gpu.count) }}
+              {{- end }}
+              {{- toYaml $lim | nindent 14 }}
+          volumeMounts:
+            - name: store
+              mountPath: /comfyui-store
+      volumes:
+        - name: store
+          {{- if .Values.storage.existingClaim }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.existingClaim }}
+          {{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "comfyui-video-lab.fullname" . }}-store
+          {{- end }}
+        - name: manifest
+          configMap:
+            name: {{ include "comfyui-video-lab.fullname" . }}-manifest
+        - name: downloader
+          configMap:
+            name: {{ include "comfyui-video-lab.fullname" . }}-downloader
+            defaultMode: 0555
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

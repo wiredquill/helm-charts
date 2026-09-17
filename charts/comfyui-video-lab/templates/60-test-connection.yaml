@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "comfyui-video-lab.fullname" . }}-test-connection
+  labels:
+    {{- include "comfyui-video-lab.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  containers:
+    - name: wget
+      image: busybox:latest
+      imagePullPolicy: IfNotPresent
+      command:
+        - sh
+        - -c
+        - |
+          echo "Testing ComfyUI Video Lab service..."
+          if wget --spider --timeout=30 "http://{{ include "comfyui-video-lab.fullname" . }}:{{ .Values.service.port }}/system_stats" 2>&1 | grep -q "200 OK"; then
+            echo "OK: /system_stats responded 200"
+          else
+            echo "FAIL: service not ready yet"
+            exit 1
+          fi
+  restartPolicy: Never

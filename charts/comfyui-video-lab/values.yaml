@@ -1,0 +1,113 @@
+# ComfyUI Video Lab — values
+# Target: 4090 cluster (RKE2, single node ai-docker), one whole RTX 4090.
+
+# =============================================================================
+# Image (pinned runtime: ComfyUI v0.35.0 + Manager 4.2.2 + 6 pinned node packs
+# + 7 baked workflow blueprints). Built from /data/comfyui-video-lab/image.
+# =============================================================================
+image:
+  repository: ghcr.io/wiredquill/comfyui-video-lab
+  tag: "40c4fcdf"   # = ComfyUI commit 40c4fcdf (v0.35.0). Never use "latest".
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: ghcr-wiredquill
+
+# =============================================================================
+# GPU — one whole card, exclusive. No time-slicing of interactive jobs: this
+# deployment requests nvidia.com/gpu: 1; keep other GPU workloads off the node
+# at night (operator unloads them).
+# =============================================================================
+gpu:
+  enabled: true
+  count: 1
+  resourceName: "nvidia.com/gpu"
+  runtimeClassName: nvidia
+
+# =============================================================================
+# Worker resources. Node ai-docker: 10 cores, 62.8 GiB allocatable RAM.
+# Floor per spec is 64 GB; we request 60 GiB to stay schedulable on the node
+# while leaving ~3 GiB for the OS/kubelet.
+# =============================================================================
+resources:
+  requests:
+    cpu: "8"
+    memory: 60Gi
+  limits:
+    cpu: "8"
+    memory: 62Gi
+
+# =============================================================================
+# Persistence — ONE fast local PVC holds models/input/output/user (+ temp).
+# Default size assumes the added 1 TB disk; on the current 200 GB root disk a
+# full install (~139 GB models) does NOT fit with headroom — see storage note
+# below and README "Storage".
+# =============================================================================
+storage:
+  # NOTE: on ai-docker the only storage class is local-path, which provisions
+  # under /var/lib/rancher/rke2/agent/data/default/storage/local-path/ on the
+  # ROOT disk. When the extra disk lands, either (a) move that directory onto
+  # the new disk, or (b) add a new StorageClass for the new disk and set
+  # storageClassName here. Until then this PVC will live on root.
+  size: 1000Gi
+  storageClassName: ""   # empty = cluster default (local-path on ai-docker)
+  accessMode: ReadWriteOnce
+  existingClaim: ""      # set to reuse an existing PVC
+
+# =============================================================================
+# Models — the init container downloads exactly the manifest below (resumable,
+# size-verified, idempotent). Gated LTX-2.5 files require an HF token.
+# =============================================================================
+models:
+  ltx25:
+    enabled: true
+    devTransformer: false  # +21.5 GB; only needed for the Experimental template's
+                           # dev-weight smoke test. Keep off on a tight disk.
+  wan:
+    enabled: true
+
+# HuggingFace read token (LTX-2.5 is auto-gated). Provide it ONE of two ways:
+hf:
+  # Option A (recommended): pre-create the secret.
+  #   kubectl create secret generic comfyui-video-lab-hf \
+  #     --from-literal=HF_TOKEN=<your-token> -n <namespace>
+  existingSecret: "comfyui-video-lab-hf"
+  # Option B (lab convenience): inline token (base64 is NOT required; it is
+  # rendered into a Secret by the chart). Prefer Option A in any real cluster.
+  token: ""
+
+# =============================================================================
+# Service — internal only (port 8188). Do NOT expose 8188 to the public
+# internet; put the org ingress/VPN in front via the ingress block below.
+# =============================================================================
+service:
+  type: ClusterIP
+  port: 8188
+
+# =============================================================================
+# Ingress — TLS + auth in front. rke2-traefik supports WebSockets natively
+# (HTTP/1.1 Upgrade), so no special annotation is required.
+# =============================================================================
+ingress:
+  enabled: true
+  className: traefik
+  host: comfyui-video-lab.local   # set to the org DNS name in front of traefik
+  annotations: {}
+    # e.g.:
+    # traefik.ingress.kubernetes.io/router.priority: "100"
+  tls:
+    enabled: true
+    # secretName: comfyui-video-lab-tls   # cert-manager or pre-provisioned
+  # Optional basic-auth in front of the raw UI (secret with htpasswd format):
+  auth:
+    enabled: false
+    existingSecret: ""
+# =============================================================================
+# Misc
+# =============================================================================
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+# Example: pin to the 4090 node
+# nodeSelector:
+#   kubernetes.io/hostname: ai-docker
