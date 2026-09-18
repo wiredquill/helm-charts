@@ -281,9 +281,9 @@ questions:
 
 - variable: ollama.persistentVolume.storageClass
   label: "Storage Class"
-  description: "Storage class for persistent volume."
+  description: "Storage class for the Ollama data volume. Leave empty to use the cluster default StorageClass. Only set an explicit class if your cluster has one suitable for Ollama data (a non-existent class leaves the PVC stuck in Pending)."
   type: "storageclass"
-  default: "suse-csi"
+  default: ""
   show_if: "ollama.persistentVolume.enabled=true"
   group: "Storage Configuration"
 

@@ -46,7 +46,10 @@ ollama:
   persistentVolume:
     enabled: true
     size: "100Gi"
-    storageClass: "suse-csi"
+    # Empty = cluster default StorageClass. Set explicitly only if your cluster
+    # has a dedicated SC for Ollama (e.g. a SUSE CSI SC). A non-existent SC
+    # (like the old "suse-csi") leaves the PVC stuck in Pending.
+    storageClass: ""
 
   # Ingress configuration, off by default. Made explicit here (rather than
   # relying silently on the vendored subchart's own defaults) so
