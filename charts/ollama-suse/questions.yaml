@@ -128,17 +128,17 @@ questions:
 # ===========================================================================
 - variable: ollama.image.repository
   label: "Image Repository"
-  description: "Container image repository for Ollama (SUSE Application Collection)."
+  description: "Container image repository for Ollama (SUSE Application Collection, relative to the image registry dp.apps.rancher.io). Do not include the registry host — e.g. use 'containers/ollama', not 'registry.suse.com/bci/ollama'."
   type: "string"
-  default: "registry.suse.com/bci/ollama"
+  default: "containers/ollama"
   group: "Image"
   required: true
 
 - variable: ollama.image.tag
   label: "Image Tag"
-  description: "Ollama image tag to deploy."
+  description: "Ollama image tag to deploy. Use the SUSE Application Collection tag (e.g. '0.32.14-11.78'), not the upstream ollama version or a BCI tag."
   type: "string"
-  default: "0.21.2"
+  default: "0.32.14-11.78"
   group: "Image"
 
 - variable: ollama.image.pullPolicy

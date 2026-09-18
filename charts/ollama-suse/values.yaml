@@ -10,9 +10,14 @@ global:
 # This is required for Helm dependency value passing
 ollama:
   # Docker image configuration (SUSE Application Collection)
+  # NOTE: repository is relative to the subchart's image.registry
+  # (dp.apps.rancher.io). Do NOT include the registry host here — doing so
+  # (e.g. "registry.suse.com/bci/ollama") yields a double-prefixed image
+  # reference that does not exist in the SUSE Application Collection.
   image:
-    repository: registry.suse.com/bci/ollama
-    tag: "0.21.2"
+    registry: dp.apps.rancher.io
+    repository: containers/ollama
+    tag: "0.32.14-11.78"
     pullPolicy: IfNotPresent
 
   # Global passthrough into the vendored subchart. Must stay a list of
