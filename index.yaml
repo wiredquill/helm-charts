@@ -3,6 +3,36 @@ entries:
   comfyui-video-lab:
   - apiVersion: v2
     appVersion: 0.35.0
+    created: "2026-09-18T01:34:50.280619497Z"
+    description: Browser-accessible, persistent ComfyUI Video Lab for LTX-2.5 + Wan
+      2.2 on a single RTX 4090. Pinned runtime (ComfyUI v0.35.0 + Manager 4.2.2 +
+      six pinned custom-node packs), seven baked workflow templates, one whole GPU,
+      one persistent store for models/input/output/user.
+    digest: 5021ba81a0744dc10a171a20d18f57d0cb237c7b971c26c57149ce1ea6decbaa
+    home: https://github.com/wiredquill/ai-demos
+    keywords:
+    - ai
+    - video-generation
+    - comfyui
+    - ltx-2.5
+    - wan-2.2
+    - nvidia
+    - gpu
+    maintainers:
+    - email: wiredquill@users.noreply.github.com
+      name: wiredquill
+    name: comfyui-video-lab
+    sources:
+    - https://github.com/Comfy-Org/ComfyUI
+    - https://github.com/Comfy-Org/ComfyUI-Manager
+    - https://huggingface.co/Lightricks/LTX-2.5
+    - https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged
+    type: application
+    urls:
+    - comfyui-video-lab-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.35.0
     created: "2026-09-17T21:23:07.748563552Z"
     description: Browser-accessible, persistent ComfyUI Video Lab for LTX-2.5 + Wan
       2.2 on a single RTX 4090. Pinned runtime (ComfyUI v0.35.0 + Manager 4.2.2 +
@@ -815,4 +845,4 @@ entries:
     urls:
     - https://wiredquill.github.io/helm-charts/stable-diffusion-0.1.6.tgz
     version: 0.1.6
-generated: "2026-09-17T21:23:07.748616288Z"
+generated: "2026-09-18T01:34:50.280725414Z"
