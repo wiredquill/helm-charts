@@ -7,7 +7,7 @@ entries:
       suse.com/registry: SUSE Application Collection
     apiVersion: v2
     appVersion: 0.32.14
-    created: "2026-09-18T16:04:28.809028673+02:00"
+    created: "2026-09-18T20:46:56.724759253+02:00"
     dependencies:
     - name: ollama
       repository: file://charts/ollama
@@ -28,6 +28,6 @@ entries:
     name: ollama-suse
     type: application
     urls:
-    - https://raw.githubusercontent.com/wiredquill/helm-charts/main/ollama-suse-0.1.23.tgz
+    - https://github.com/wiredquill/helm-charts/ollama-suse-0.1.23.tgz
     version: 0.1.23
-generated: "2026-09-18T16:04:28.807016019+02:00"
+generated: "2026-09-18T20:46:56.723489847+02:00"
